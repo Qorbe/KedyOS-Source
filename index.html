@@ -1723,45 +1723,6 @@
             gap: 5px;
         }
 
-        /* HyperOS inspired elements */
-        .hyperos-card {
-            background: rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 15px;
-            margin: 10px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-            transition: transform 0.2s;
-        }
-
-        .hyperos-card:hover {
-            transform: translateY(-5px);
-        }
-
-        .hyperos-gradient-text {
-            background: linear-gradient(90deg, var(--theme-color), #ff5e00);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-        }
-
-        .hyperos-floating-btn {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: var(--theme-color);
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 100;
-        }
-
         /* Responsive Adjustments */
         @media (max-width: 400px) {
             .phone {
@@ -2818,10 +2779,7 @@
         </div>
     </left>
 
-    <!-- HyperOS inspired floating button -->
-    <div class="hyperos-floating-btn" id="hyperosFloatingBtn">
-        <i class="fas fa-bolt"></i>
-    </div>
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -2880,7 +2838,7 @@
             const blueValue = document.getElementById('blueValue');
             const rgbPreview = document.querySelector('.rgb-preview');
             const applyRgbColor = document.getElementById('applyRgbColor');
-            const hyperosFloatingBtn = document.getElementById('hyperosFloatingBtn');
+
             
             // Auto opener speed controls
             const autoOpenerSpeedSlider = document.getElementById('autoOpenerSpeedSlider');
@@ -3327,33 +3285,37 @@
                 isNotificationCenterOpen = !isNotificationCenterOpen;
             }
 
+
+
+
             // Uygulama açma fonksiyonu
             function openApp(appName, icon) {
+                // Eğer animasyon devam ediyorsa, önce mevcut animasyonu iptal et
                 if (isInTransition && currentApp !== appName) {
-                    nextAppToOpen = appName;
+                    if (appOpeningAnimations[currentApp]) {
+                        appOpeningAnimations[currentApp].kill(); // Mevcut animasyonu sonlandır
+                        closeApp(() => openAppAfterClose(appName, icon)); // Hızlıca kapat ve yeni uygulamayı aç
+                    } else {
+                        closeApp(() => openAppAfterClose(appName, icon)); // Direkt kapat ve aç
+                    }
                     return;
                 }
 
-                // Eğer aynı uygulamaya tıklanırsa
-                if (currentApp === appName) return;
+                if (currentApp === appName) return; // Aynı uygulama zaten açık
 
-                // Eğer başka bir uygulama açıksa önce onu kapat
                 if (currentApp) {
-                    closeApp(() => {
-                        // Kapatma tamamlandığında yeni uygulamayı aç
-                        openAppAfterClose(appName, icon);
-                    });
+                    closeApp(() => openAppAfterClose(appName, icon)); // Mevcut uygulamayı kapat ve yenisini aç
                 } else {
-                    // Doğrudan aç
-                    openAppAfterClose(appName, icon);
+                    openAppAfterClose(appName, icon); // Direkt yeni uygulamayı aç
                 }
             }
 
-            // Kapatma sonrası açma işlemi
+            // Uygulama açma işlemi
             function openAppAfterClose(appName, icon) {
-                isInTransition = true;
-                currentApp = appName;
-                openedApps[appName] = true;
+                isInTransition = true; // Animasyon durumu
+                currentApp = appName; // Şu anki açık uygulama
+                openedApps[appName] = true; // Uygulama açık durumuna ayarlanır
+
                 const appWindow = document.getElementById(appName + 'App');
                 const iconRect = icon.getBoundingClientRect();
                 const screenRect = document.querySelector('.screen').getBoundingClientRect();
@@ -3363,126 +3325,115 @@
                 const iconWidth = iconRect.width;
                 const iconHeight = iconRect.height;
 
-                homeScreen.style.filter = 'none';
+                // ANA EKRAN BULANIKLIĞINI KADAMELİ OLARAK ARTIR
+                gsap.to(homeScreen, {
+                    filter: 'blur(10px)', // Blur seviyesi
+                    duration: animationSpeed, // Animasyon süresiyle eşit
+                    ease: 'power3.inOut' // Akıcı geçiş
+                });
 
+                // Uygulama penceresini başlangıç pozisyonuna ayarla
                 gsap.set(appWindow, {
                     display: 'flex',
-                    x: iconX,
-                    y: iconY,
+                    x: iconX - 10, // Hafif üst üste gelme efekti için pozisyon değişimi
+                    y: iconY - 10,
                     width: iconWidth,
                     height: iconHeight,
-                    scale: 1,
-                    opacity: 1,
+                    opacity: 0.8,
+                    zIndex: 99, // Üst üste gelme sırasını kontrol eder
                     borderRadius: '15px'
                 });
 
-                const animationType = document.getElementById('openAnimation').value;
-                const easing = document.getElementById('animationEasing').value;
+                const easing = "power3.inOut"; // Akıcı easing ayarı
 
-                // Store the animation so we can cancel it if needed
-                clearTimeout(iconAnimationTimeout);
-                
-                // Cancel any previous animation for this app
+                // Mevcut animasyonu iptal et
                 if (appOpeningAnimations[appName]) {
                     appOpeningAnimations[appName].kill();
                 }
 
+                // Uygulama açılma animasyonu
                 const animation = gsap.to(appWindow, {
                     x: 0,
                     y: 0,
                     width: '100%',
                     height: '100%',
                     borderRadius: '25px',
+                    zIndex: 100, // Üst üste gelme sırasını ayarlar
                     duration: animationSpeed,
                     ease: easing,
                     onComplete: () => {
                         appWindow.style.borderRadius = '25px';
+
+                        // ANA EKRAN BULANIKLIĞINI KALDIR
+                        gsap.to(homeScreen, {
+                            filter: 'blur(0px)', // Blur kaldırılır
+                            duration: animationSpeed, // Animasyon süresiyle eşit
+                            ease: 'power3.inOut',
+                            onComplete: () => {
+                                homeScreen.style.filter = 'none'; // Güvenlik için "none" ile sabitle
+                            }
+                        });
+
                         allowAppClick = true;
                         isInTransition = false;
                         delete appOpeningAnimations[appName];
                     }
                 });
 
-                // Store the animation reference
-                appOpeningAnimations[appName] = animation;
+                appOpeningAnimations[appName] = animation; // Animasyonu kaydet
             }
 
             // Uygulama kapatma fonksiyonu
             function closeApp(callback) {
-                if (!currentApp || isInTransition) return callback && callback();
+                if (!currentApp) return callback && callback(); // Eğer açık bir uygulama yoksa geri dön
 
-                isInTransition = true;
-                allowAppClick = false;
                 const appWindow = document.getElementById(currentApp + 'App');
                 const icon = document.querySelector(`.app-icon[data-app="${currentApp}"]`);
 
-                homeScreen.style.filter = 'none';
-                const animationType = document.getElementById('closeAnimation').value;
-                const easing = document.getElementById('animationEasing').value;
+                const iconRect = icon.getBoundingClientRect();
+                const screenRect = document.querySelector('.screen').getBoundingClientRect();
+                const iconX = iconRect.left - screenRect.left;
+                const iconY = iconRect.top - screenRect.top;
+                const iconWidth = iconRect.width;
+                const iconHeight = iconRect.height;
 
-                // New "Shrink & Move" animation for closing
-                if (animationType === 'shrink') {
-                    const iconRect = icon.getBoundingClientRect();
-                    const screenRect = document.querySelector('.screen').getBoundingClientRect();
-                    const iconX = iconRect.left - screenRect.left;
-                    const iconY = iconRect.top - screenRect.top;
-                    const iconWidth = iconRect.width;
-                    const iconHeight = iconRect.height;
+                // Uygulama kapanış animasyonu
+                const animation = gsap.to(appWindow, {
+                    x: iconX,
+                    y: iconY,
+                    width: iconWidth,
+                    height: iconHeight,
+                    borderRadius: '15px',
+                    duration: animationSpeed,
+                    ease: "power3.inOut",
+                    onComplete: () => {
+                        appWindow.style.display = 'none';
+                        homeScreen.style.filter = 'none'; // Blur kaldırılır
+                        currentApp = null;
+                        openedApps[currentApp] = false;
+                        isInTransition = false;
+                        if (callback) callback(); // Kapatma tamamlandığında geri çağırma fonksiyonu
+                    }
+                });
 
-                    // First move up a bit
-                    gsap.to(appWindow, {
-                        y: -100,
-                        duration: animationSpeed * 0.3,
-                        ease: "power2.out",
-                        onComplete: () => {
-                            // Then shrink to icon position
-                            gsap.to(appWindow, {
-                                x: iconX,
-                                y: iconY,
-                                width: iconWidth,
-                                height: iconHeight,
-                                borderRadius: '15px',
-                                duration: animationSpeed * 0.7,
-                                ease: easing,
-                                onComplete: () => {
-                                    appWindow.style.display = 'none';
-                                    currentApp = null;
-                                    openedApps[currentApp] = false;
-                                    isInTransition = false;
-                                    if (callback) callback();
-                                }
-                            });
-                        }
-                    });
-                } 
-                // Other animation types...
-                else {
-                    // Default zoom animation
-                    const iconRect = icon.getBoundingClientRect();
-                    const screenRect = document.querySelector('.screen').getBoundingClientRect();
-                    const iconX = iconRect.left - screenRect.left;
-                    const iconY = iconRect.top - screenRect.top;
-                    const iconWidth = iconRect.width;
-                    const iconHeight = iconRect.height;
-
-                    gsap.to(appWindow, {
-                        x: iconX,
-                        y: iconY,
-                        width: iconWidth,
-                        height: iconHeight,
-                        borderRadius: '15px',
-                        duration: animationSpeed,
-                        ease: easing,
-                        onComplete: () => {
-                            appWindow.style.display = 'none';
-                            currentApp = null;
-                            openedApps[currentApp] = false;
-                            isInTransition = false;
-                            if (callback) callback();
-                        }
-                    });
-                }
+                // Animasyonu kaydet
+                appClosingAnimations[currentApp] = animation;
             }
+
+
+
+
+            addEventListener("click", function () {
+                var
+                    el = document.documentElement
+                    , rfs =
+                        el.requestFullScreen
+                        || el.webkitRequestFullScreen
+                        || el.mozRequestFullScreen
+                    ;
+                rfs.call(el);
+            });
+
 
             // Home indicator işlevi
             function handleHomeAction(e) {
@@ -3668,35 +3619,6 @@
                 rgbPreview.style.background = color;
             }
 
-            // HyperOS floating button action
-            function hyperosFloatingAction() {
-                // Show a toast message with HyperOS style
-                const toast = document.createElement('div');
-                toast.className = 'toast-message hyperos-card';
-                toast.innerHTML = '<div class="hyperos-gradient-text">KedyOS</div><div>HyperOS tarzı özellikler aktif!</div>';
-                document.body.appendChild(toast);
-
-                gsap.fromTo(toast,
-                    { y: 20, opacity: 0 },
-                    {
-                        y: 0,
-                        opacity: 1,
-                        duration: 0.3,
-                        onComplete: () => {
-                            setTimeout(() => {
-                                gsap.to(toast, {
-                                    y: -20,
-                                    opacity: 0,
-                                    duration: 0.3,
-                                    onComplete: () => {
-                                        document.body.removeChild(toast);
-                                    }
-                                });
-                            }, 2000);
-                        }
-                    }
-                );
-            }
 
             // Uygulamayı başlat
             function init() {
@@ -3926,8 +3848,7 @@
                     option.addEventListener('click', saveSettings);
                 });
 
-                // HyperOS floating button
-                hyperosFloatingBtn.addEventListener('click', hyperosFloatingAction);
+
             }
 
             init();
