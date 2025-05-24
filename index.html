@@ -239,7 +239,6 @@
             }
         }
 
-        /* Phone */
         .phone {
             position: relative;
             width: 360px;
@@ -250,6 +249,20 @@
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
             transition: transform 0.3s;
             transform: scale(var(--frame-scale));
+            overflow: hidden;
+        }
+
+        @media (max-width: 460px) {
+            .phone {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+                padding: 0;
+                box-shadow: none;
+            }
         }
 
         .phone-inner {
@@ -287,7 +300,7 @@
         .home-screen {
             width: 100%;
             height: 100%;
-            padding: 60px 20px 120px; /* Footer için daha fazla boşluk */
+            padding: 60px 20px 120px;
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 20px;
@@ -373,6 +386,79 @@
             box-shadow: 0 0 20px rgba(0,0,0,0.2);
         }
 
+        .app-backdrop {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(20px);
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+        }
+
+            .app-backdrop.visible {
+                opacity: 1;
+            }
+
+        .app-content-inner {
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+        }
+
+            .app-content-inner.visible {
+                opacity: 1;
+            }
+
+        /* Yeni: Uygulama ikon önizleme */
+        .app-icon-preview-container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        .app-icon-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 25px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+            transform: scale(0);
+            opacity: 0;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.3s;
+        }
+
+            .app-icon-preview i {
+                font-size: 48px;
+                color: var(--icon-color);
+                margin-bottom: 5px;
+            }
+
+            .app-icon-preview span {
+                font-size: 14px;
+                color: white;
+                text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+            }
+
+            .app-icon-preview.visible {
+                transform: scale(1);
+                opacity: 1;
+            }
+
         .app-header {
             height: 60px;
             background: var(--header-bg);
@@ -387,6 +473,14 @@
             font-size: 18px;
             font-weight: 500;
             transition: background 0.3s, color 0.3s;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .app-window.active .app-header {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .app-content {
@@ -1306,7 +1400,7 @@
         /* App Dock */
         .app-dock {
             position: absolute;
-            bottom: 100px; /* Daha aşağıda */
+            bottom: 100px;
             left: 0;
             width: 100%;
             display: flex;
@@ -1951,29 +2045,32 @@
 
                 <!-- Music App -->
                 <div class="app-window" id="musicApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
                         <span>Müzik</span>
                     </div>
-                    <div class="app-content music-player">
-                        <div class="album-art" style="background-image: url('https://source.unsplash.com/random/300x300/?album,cover');"></div>
-                        <div class="song-title">Favori Şarkın</div>
-                        <div class="artist-name">Sevdiğin Sanatçı</div>
-                        <div class="progress-container">
-                            <div class="progress-bar"></div>
-                        </div>
-                        <div class="progress-time">
-                            <span>1:23</span>
-                            <span>3:45</span>
-                        </div>
-                        <div class="controls">
-                            <div class="control-btn">
-                                <i class="fas fa-step-backward"></i>
+                    <div class="app-content">
+                        <div class="app-content-inner music-player">
+                            <div class="album-art" style="background-image: url('https://source.unsplash.com/random/300x300/?album,cover');"></div>
+                            <div class="song-title">Favori Şarkın</div>
+                            <div class="artist-name">Sevdiğin Sanatçı</div>
+                            <div class="progress-container">
+                                <div class="progress-bar"></div>
                             </div>
-                            <div class="control-btn play-btn">
-                                <i class="fas fa-play"></i>
+                            <div class="progress-time">
+                                <span>1:23</span>
+                                <span>3:45</span>
                             </div>
-                            <div class="control-btn">
-                                <i class="fas fa-step-forward"></i>
+                            <div class="controls">
+                                <div class="control-btn">
+                                    <i class="fas fa-step-backward"></i>
+                                </div>
+                                <div class="control-btn play-btn">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                                <div class="control-btn">
+                                    <i class="fas fa-step-forward"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1981,125 +2078,137 @@
 
                 <!-- FireCat Browser App -->
                 <div class="app-window" id="browserApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
                         <span>FireCat</span>
                     </div>
-                    <div class="app-content" style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                        <div style="text-align: center; padding: 20px;">
-                            <i class="fas fa-globe" style="font-size: 60px; color: var(--theme-color); margin-bottom: 20px;"></i>
-                            <h3>FireCat Tarayıcı</h3>
-                            <p>Hızlı ve güvenli web tarama deneyimi</p>
-                            <button style="margin-top: 20px; padding: 10px 20px; background: var(--theme-color); color: white; border: none; border-radius: 5px;">Ara</button>
+                    <div class="app-content">
+                        <div class="app-content-inner" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                            <div style="text-align: center; padding: 20px;">
+                                <i class="fas fa-globe" style="font-size: 60px; color: var(--theme-color); margin-bottom: 20px;"></i>
+                                <h3>FireCat Tarayıcı</h3>
+                                <p>Hızlı ve güvenli web tarama deneyimi</p>
+                                <button style="margin-top: 20px; padding: 10px 20px; background: var(--theme-color); color: white; border: none; border-radius: 5px;">Ara</button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Files App -->
                 <div class="app-window" id="filesApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
                         <span>Dosyalar</span>
                     </div>
-                    <div class="app-content files-container">
-                        <div class="file-item">
-                            <div class="file-icon">
-                                <i class="fas fa-folder"></i>
+                    <div class="app-content">
+                        <div class="app-content-inner files-container">
+                            <div class="file-item">
+                                <div class="file-icon">
+                                    <i class="fas fa-folder"></i>
+                                </div>
+                                <div class="file-name">Belgeler</div>
+                                <div class="file-size">15 öğe</div>
                             </div>
-                            <div class="file-name">Belgeler</div>
-                            <div class="file-size">15 öğe</div>
-                        </div>
-                        <div class="file-item">
-                            <div class="file-icon">
-                                <i class="fas fa-folder"></i>
+                            <div class="file-item">
+                                <div class="file-icon">
+                                    <i class="fas fa-folder"></i>
+                                </div>
+                                <div class="file-name">Resimler</div>
+                                <div class="file-size">23 öğe</div>
                             </div>
-                            <div class="file-name">Resimler</div>
-                            <div class="file-size">23 öğe</div>
-                        </div>
-                        <div class="file-item">
-                            <div class="file-icon">
-                                <i class="fas fa-folder"></i>
+                            <div class="file-item">
+                                <div class="file-icon">
+                                    <i class="fas fa-folder"></i>
+                                </div>
+                                <div class="file-name">Müzikler</div>
+                                <div class="file-size">42 öğe</div>
                             </div>
-                            <div class="file-name">Müzikler</div>
-                            <div class="file-size">42 öğe</div>
-                        </div>
-                        <div class="file-item">
-                            <div class="file-icon">
-                                <i class="fas fa-file"></i>
+                            <div class="file-item">
+                                <div class="file-icon">
+                                    <i class="fas fa-file"></i>
+                                </div>
+                                <div class="file-name">notlar.txt</div>
+                                <div class="file-size">12 KB</div>
                             </div>
-                            <div class="file-name">notlar.txt</div>
-                            <div class="file-size">12 KB</div>
-                        </div>
-                        <div class="file-item">
-                            <div class="file-icon">
-                                <i class="fas fa-file-pdf"></i>
+                            <div class="file-item">
+                                <div class="file-icon">
+                                    <i class="fas fa-file-pdf"></i>
+                                </div>
+                                <div class="file-name">dokuman.pdf</div>
+                                <div class="file-size">2.4 MB</div>
                             </div>
-                            <div class="file-name">dokuman.pdf</div>
-                            <div class="file-size">2.4 MB</div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Maps App -->
                 <div class="app-window" id="mapsApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
                         <span>Haritalar</span>
                     </div>
-                    <div class="app-content maps-container">
-                        <div class="map-placeholder">
-                            <i class="fas fa-map-marked-alt map-icon"></i>
-                            <h3>Haritalar</h3>
-                            <p>Konumunuz ve navigasyon bilgileri</p>
+                    <div class="app-content">
+                        <div class="app-content-inner maps-container">
+                            <div class="map-placeholder">
+                                <i class="fas fa-map-marked-alt map-icon"></i>
+                                <h3>Haritalar</h3>
+                                <p>Konumunuz ve navigasyon bilgileri</p>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Weather App -->
                 <div class="app-window" id="weatherApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
                         <span>Hava Durumu</span>
                     </div>
                     <div class="app-content">
-                        <div class="weather-current">
-                            <div class="weather-icon">
-                                <i class="fas fa-sun"></i>
-                            </div>
-                            <div class="weather-temp">24°</div>
-                            <div class="weather-desc">Güneşli</div>
-                        </div>
-                        <div class="weather-forecast">
-                            <div class="forecast-day">
-                                <div>Pzt</div>
-                                <div class="forecast-icon">
+                        <div class="app-content-inner">
+                            <div class="weather-current">
+                                <div class="weather-icon">
                                     <i class="fas fa-sun"></i>
                                 </div>
-                                <div>26°</div>
+                                <div class="weather-temp">24°</div>
+                                <div class="weather-desc">Güneşli</div>
                             </div>
-                            <div class="forecast-day">
-                                <div>Sal</div>
-                                <div class="forecast-icon">
-                                    <i class="fas fa-cloud-sun"></i>
+                            <div class="weather-forecast">
+                                <div class="forecast-day">
+                                    <div>Pzt</div>
+                                    <div class="forecast-icon">
+                                        <i class="fas fa-sun"></i>
+                                    </div>
+                                    <div>26°</div>
                                 </div>
-                                <div>23°</div>
-                            </div>
-                            <div class="forecast-day">
-                                <div>Çar</div>
-                                <div class="forecast-icon">
-                                    <i class="fas fa-cloud"></i>
+                                <div class="forecast-day">
+                                    <div>Sal</div>
+                                    <div class="forecast-icon">
+                                        <i class="fas fa-cloud-sun"></i>
+                                    </div>
+                                    <div>23°</div>
                                 </div>
-                                <div>21°</div>
-                            </div>
-                            <div class="forecast-day">
-                                <div>Per</div>
-                                <div class="forecast-icon">
-                                    <i class="fas fa-cloud-rain"></i>
+                                <div class="forecast-day">
+                                    <div>Çar</div>
+                                    <div class="forecast-icon">
+                                        <i class="fas fa-cloud"></i>
+                                    </div>
+                                    <div>21°</div>
                                 </div>
-                                <div>19°</div>
-                            </div>
-                            <div class="forecast-day">
-                                <div>Cum</div>
-                                <div class="forecast-icon">
-                                    <i class="fas fa-sun"></i>
+                                <div class="forecast-day">
+                                    <div>Per</div>
+                                    <div class="forecast-icon">
+                                        <i class="fas fa-cloud-rain"></i>
+                                    </div>
+                                    <div>19°</div>
                                 </div>
-                                <div>25°</div>
+                                <div class="forecast-day">
+                                    <div>Cum</div>
+                                    <div class="forecast-icon">
+                                        <i class="fas fa-sun"></i>
+                                    </div>
+                                    <div>25°</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2107,123 +2216,132 @@
 
                 <!-- Calendar App -->
                 <div class="app-window" id="calendarApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
                         <span>Takvim</span>
                     </div>
                     <div class="app-content">
-                        <div class="calendar-header">
-                            <div class="calendar-month">Mayıs 2023</div>
-                            <div class="calendar-nav">
-                                <div class="calendar-nav-btn">
-                                    <i class="fas fa-chevron-left"></i>
-                                </div>
-                                <div class="calendar-nav-btn">
-                                    <i class="fas fa-chevron-right"></i>
+                        <div class="app-content-inner">
+                            <div class="calendar-header">
+                                <div class="calendar-month">Mayıs 2023</div>
+                                <div class="calendar-nav">
+                                    <div class="calendar-nav-btn">
+                                        <i class="fas fa-chevron-left"></i>
+                                    </div>
+                                    <div class="calendar-nav-btn">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="calendar-weekdays">
-                            <div>P</div>
-                            <div>S</div>
-                            <div>Ç</div>
-                            <div>P</div>
-                            <div>C</div>
-                            <div>C</div>
-                            <div>P</div>
-                        </div>
-                        <div class="calendar-days">
-                            <div class="calendar-day other-month">30</div>
-                            <div class="calendar-day">1</div>
-                            <div class="calendar-day">2</div>
-                            <div class="calendar-day">3</div>
-                            <div class="calendar-day">4</div>
-                            <div class="calendar-day">5</div>
-                            <div class="calendar-day">6</div>
-                            <div class="calendar-day">7</div>
-                            <div class="calendar-day">8</div>
-                            <div class="calendar-day">9</div>
-                            <div class="calendar-day">10</div>
-                            <div class="calendar-day">11</div>
-                            <div class="calendar-day">12</div>
-                            <div class="calendar-day">13</div>
-                            <div class="calendar-day today">14</div>
-                            <div class="calendar-day">15</div>
-                            <div class="calendar-day">16</div>
-                            <div class="calendar-day">17</div>
-                            <div class="calendar-day">18</div>
-                            <div class="calendar-day">19</div>
-                            <div class="calendar-day">20</div>
-                            <div class="calendar-day">21</div>
-                            <div class="calendar-day">22</div>
-                            <div class="calendar-day">23</div>
-                            <div class="calendar-day">24</div>
-                            <div class="calendar-day">25</div>
-                            <div class="calendar-day">26</div>
-                            <div class="calendar-day">27</div>
-                            <div class="calendar-day">28</div>
-                            <div class="calendar-day">29</div>
-                            <div class="calendar-day">30</div>
-                            <div class="calendar-day">31</div>
-                            <div class="calendar-day other-month">1</div>
+                            <div class="calendar-weekdays">
+                                <div>P</div>
+                                <div>S</div>
+                                <div>Ç</div>
+                                <div>P</div>
+                                <div>C</div>
+                                <div>C</div>
+                                <div>P</div>
+                            </div>
+                            <div class="calendar-days">
+                                <div class="calendar-day other-month">30</div>
+                                <div class="calendar-day">1</div>
+                                <div class="calendar-day">2</div>
+                                <div class="calendar-day">3</div>
+                                <div class="calendar-day">4</div>
+                                <div class="calendar-day">5</div>
+                                <div class="calendar-day">6</div>
+                                <div class="calendar-day">7</div>
+                                <div class="calendar-day">8</div>
+                                <div class="calendar-day">9</div>
+                                <div class="calendar-day">10</div>
+                                <div class="calendar-day">11</div>
+                                <div class="calendar-day">12</div>
+                                <div class="calendar-day">13</div>
+                                <div class="calendar-day today">14</div>
+                                <div class="calendar-day">15</div>
+                                <div class="calendar-day">16</div>
+                                <div class="calendar-day">17</div>
+                                <div class="calendar-day">18</div>
+                                <div class="calendar-day">19</div>
+                                <div class="calendar-day">20</div>
+                                <div class="calendar-day">21</div>
+                                <div class="calendar-day">22</div>
+                                <div class="calendar-day">23</div>
+                                <div class="calendar-day">24</div>
+                                <div class="calendar-day">25</div>
+                                <div class="calendar-day">26</div>
+                                <div class="calendar-day">27</div>
+                                <div class="calendar-day">28</div>
+                                <div class="calendar-day">29</div>
+                                <div class="calendar-day">30</div>
+                                <div class="calendar-day">31</div>
+                                <div class="calendar-day other-month">1</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Clock App -->
                 <div class="app-window" id="clockApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
                         <span>Saat</span>
                     </div>
-                    <div class="app-content clock">
-                        <div class="clock-face">
-                            <div class="clock-hand clock-hour" id="clockHour"></div>
-                            <div class="clock-hand clock-minute" id="clockMinute"></div>
-                            <div class="clock-hand clock-second" id="clockSecond"></div>
-                            <div class="clock-center"></div>
+                    <div class="app-content">
+                        <div class="app-content-inner clock">
+                            <div class="clock-face">
+                                <div class="clock-hand clock-hour" id="clockHour"></div>
+                                <div class="clock-hand clock-minute" id="clockMinute"></div>
+                                <div class="clock-hand clock-second" id="clockSecond"></div>
+                                <div class="clock-center"></div>
+                            </div>
+                            <div class="clock-digital" id="digitalClock">12:34:56</div>
                         </div>
-                        <div class="clock-digital" id="digitalClock">12:34:56</div>
                     </div>
                 </div>
 
                 <!-- Contacts App -->
                 <div class="app-window" id="contactsApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
                         <span>Kişiler</span>
                     </div>
-                    <div class="app-content contacts-list">
-                        <div class="contact-item">
-                            <div class="contact-avatar">A</div>
-                            <div>
-                                <div class="contact-name">Ahmet Yılmaz</div>
-                                <div class="contact-number">+90 555 123 4567</div>
+                    <div class="app-content">
+                        <div class="app-content-inner contacts-list">
+                            <div class="contact-item">
+                                <div class="contact-avatar">A</div>
+                                <div>
+                                    <div class="contact-name">Ahmet Yılmaz</div>
+                                    <div class="contact-number">+90 555 123 4567</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="contact-item">
-                            <div class="contact-avatar">M</div>
-                            <div>
-                                <div class="contact-name">Mehmet Demir</div>
-                                <div class="contact-number">+90 555 234 5678</div>
+                            <div class="contact-item">
+                                <div class="contact-avatar">M</div>
+                                <div>
+                                    <div class="contact-name">Mehmet Demir</div>
+                                    <div class="contact-number">+90 555 234 5678</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="contact-item">
-                            <div class="contact-avatar">A</div>
-                            <div>
-                                <div class="contact-name">Ayşe Kaya</div>
-                                <div class="contact-number">+90 555 345 6789</div>
+                            <div class="contact-item">
+                                <div class="contact-avatar">A</div>
+                                <div>
+                                    <div class="contact-name">Ayşe Kaya</div>
+                                    <div class="contact-number">+90 555 345 6789</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="contact-item">
-                            <div class="contact-avatar">E</div>
-                            <div>
-                                <div class="contact-name">Elif Şahin</div>
-                                <div class="contact-number">+90 555 456 7890</div>
+                            <div class="contact-item">
+                                <div class="contact-avatar">E</div>
+                                <div>
+                                    <div class="contact-name">Elif Şahin</div>
+                                    <div class="contact-number">+90 555 456 7890</div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="contact-item">
-                            <div class="contact-avatar">C</div>
-                            <div>
-                                <div class="contact-name">Can Öztürk</div>
-                                <div class="contact-number">+90 555 567 8901</div>
+                            <div class="contact-item">
+                                <div class="contact-avatar">C</div>
+                                <div>
+                                    <div class="contact-name">Can Öztürk</div>
+                                    <div class="contact-number">+90 555 567 8901</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2231,61 +2349,64 @@
 
                 <!-- Phone App -->
                 <div class="app-window" id="phoneApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
                         <span>Telefon</span>
                     </div>
-                    <div class="app-content phone-app">
-                        <div style="text-align: center; font-size: 24px; margin-bottom: 20px;">Aramak için numarayı tuşlayın</div>
-                        <div class="numpad">
-                            <div class="numpad-btn">
-                                1
-                                <div class="numpad-letters"></div>
-                            </div>
-                            <div class="numpad-btn">
-                                2
-                                <div class="numpad-letters">ABC</div>
-                            </div>
-                            <div class="numpad-btn">
-                                3
-                                <div class="numpad-letters">DEF</div>
-                            </div>
-                            <div class="numpad-btn">
-                                4
-                                <div class="numpad-letters">GHI</div>
-                            </div>
-                            <div class="numpad-btn">
-                                5
-                                <div class="numpad-letters">JKL</div>
-                            </div>
-                            <div class="numpad-btn">
-                                6
-                                <div class="numpad-letters">MNO</div>
-                            </div>
-                            <div class="numpad-btn">
-                                7
-                                <div class="numpad-letters">PQRS</div>
-                            </div>
-                            <div class="numpad-btn">
-                                8
-                                <div class="numpad-letters">TUV</div>
-                            </div>
-                            <div class="numpad-btn">
-                                9
-                                <div class="numpad-letters">WXYZ</div>
-                            </div>
-                            <div class="numpad-btn">
-                                *
-                            </div>
-                            <div class="numpad-btn">
-                                0
-                                <div class="numpad-letters">+</div>
-                            </div>
-                            <div class="numpad-btn">
-                                #
-                            </div>
-                            <div class="call-btn">
-                                <i class="fas fa-phone" style="margin-right: 8px;"></i>
-                                Ara
+                    <div class="app-content">
+                        <div class="app-content-inner phone-app">
+                            <div style="text-align: center; font-size: 24px; margin-bottom: 20px;">Aramak için numarayı tuşlayın</div>
+                            <div class="numpad">
+                                <div class="numpad-btn">
+                                    1
+                                    <div class="numpad-letters"></div>
+                                </div>
+                                <div class="numpad-btn">
+                                    2
+                                    <div class="numpad-letters">ABC</div>
+                                </div>
+                                <div class="numpad-btn">
+                                    3
+                                    <div class="numpad-letters">DEF</div>
+                                </div>
+                                <div class="numpad-btn">
+                                    4
+                                    <div class="numpad-letters">GHI</div>
+                                </div>
+                                <div class="numpad-btn">
+                                    5
+                                    <div class="numpad-letters">JKL</div>
+                                </div>
+                                <div class="numpad-btn">
+                                    6
+                                    <div class="numpad-letters">MNO</div>
+                                </div>
+                                <div class="numpad-btn">
+                                    7
+                                    <div class="numpad-letters">PQRS</div>
+                                </div>
+                                <div class="numpad-btn">
+                                    8
+                                    <div class="numpad-letters">TUV</div>
+                                </div>
+                                <div class="numpad-btn">
+                                    9
+                                    <div class="numpad-letters">WXYZ</div>
+                                </div>
+                                <div class="numpad-btn">
+                                    *
+                                </div>
+                                <div class="numpad-btn">
+                                    0
+                                    <div class="numpad-letters">+</div>
+                                </div>
+                                <div class="numpad-btn">
+                                    #
+                                </div>
+                                <div class="call-btn">
+                                    <i class="fas fa-phone" style="margin-right: 8px;"></i>
+                                    Ara
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -2293,1320 +2414,796 @@
 
                 <!-- TTR App -->
                 <div class="app-window" id="ttrApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
                         <span>TTR - Projelerim</span>
                         <button class="reset-button">Giriş</button>
                     </div>
-                    <div class="app-content ttr-container">
-                        <div class="ttr-project">
-                            <div class="ttr-project-title">KedyOS 22</div>
-                            <div class="ttr-project-desc">iOS tarzı bir işletim sistemi simülasyonu</div>
-                            <a href="#" class="ttr-project-link">Detaylar</a>
-                        </div>
-                        <div class="ttr-project">
-                            <div class="ttr-project-title">FireCat Browser</div>
-                            <div class="ttr-project-desc">Hızlı ve hafif web tarayıcı</div>
-                            <a href="#" class="ttr-project-link">Detaylar</a>
-                        </div>
-                        <div class="ttr-project">
-                            <div class="ttr-project-title">T-Mail</div>
-                            <div class="ttr-project-desc">Güvenli e-posta istemcisi</div>
-                            <a href="#" class="ttr-project-link">Detaylar</a>
-                        </div>
-                        <div class="ttr-project">
-                            <div class="ttr-project-title">UrindChat</div>
-                            <div class="ttr-project-desc">Anlık mesajlaşma uygulaması</div>
-                            <a href="#" class="ttr-project-link">Detaylar</a>
-                        </div>
-                    </div>
-                </div>
-
-                <!--Email-->
-                <div class="app-window" id="emailApp">
-                    <div class="app-header">
-                        <span>T-Mail</span>
-                        <button class="reset-button">Giriş</button>
-                    </div>
-                    <div class="app-content" style="display: flex; justify-content: center; align-items: center; height: 100%;">
-                        <div style="text-align: center; padding: 20px;">
-                            <i class="fas fa-envelope" style="font-size: 60px; color: var(--theme-color); margin-bottom: 20px;"></i>
-                            <h3>Gelen kutunuz boş</h3>
-                            <p>Yeni e-postalarınız burada görünecek</p>
-                            <button style="margin-top: 20px; padding: 10px 20px; background: var(--theme-color); color: white; border: none; border-radius: 5px;">Yeni E-posta</button>
-                        </div>
-                    </div>
-                </div>
-
-                <!--Galeri-->
-                <div class="app-window" id="galleryApp">
-                    <div class="app-header">
-                        <span>Galeri</span>
-                        <button class="reset-button">Giriş</button>
-                    </div>
                     <div class="app-content">
-                        <div class="gallery-container">
-                            <div class="gallery-item" style="background-image: url('https://source.unsplash.com/random/300x300/?nature');"></div>
-                            <div class="gallery-item" style="background-image: url('https://source.unsplash.com/random/300x300/?abstract');"></div>
-                            <div class="gallery-item" style="background-image: url('https://source.unsplash.com/random/300x300/?city');"></div>
-                            <div class="gallery-item active" style="background-image: url('https://source.unsplash.com/random/300x300/?gradient');" data-wallpaper="gradient"></div>
-                            <div class="gallery-item" style="background-image: url('https://source.unsplash.com/random/300x300/?space');" data-wallpaper="space"></div>
-                            <div class="gallery-item" style="background-image: url('https://source.unsplash.com/random/300x300/?water');" data-wallpaper="water"></div>
+                        <div class="app-content-inner ttr-container">
+                            <div class="ttr-project">
+                                <div class="ttr-project-title">KedyOS 22</div>
+                                <div class="ttr-project-desc">iOS tarzı bir işletim sistemi simülasyonu</div>
+                                <a href="#" class="ttr-project-link">Detaylar</a>
+                            </div>
+                            <div class="ttr-project">
+                                <div class="ttr-project-title">FireCat Browser</div>
+                                <div class="ttr-project-desc">Hızlı ve hafif web tarayıcı</div>
+                                <a href="#" class="ttr-project-link">Detaylar</a>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Settings App -->
                 <div class="app-window" id="settingsApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
                         <span>Ayarlar</span>
-                        <button class="reset-button" id="resetButton">Fabrika Ayarları</button>
                     </div>
                     <div class="app-content settings-content">
-                        <div class="settings-item">
-                            <div class="settings-title">Kablosuz Ağlar</div>
-                            <div class="settings-value">ROG7_WiFi_5GhZ</div>
-                        </div>
-                        <div class="settings-item">
-                            <div class="settings-title">Bluetooth</div>
-                            <div class="settings-value">
-                                <label class="switch">
-                                    <input type="checkbox" checked id="bluetoothToggle">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="settings-item">
-                            <div class="settings-title">Parlaklık</div>
-                            <div class="settings-value">%75</div>
-                        </div>
-                        <div class="settings-item">
-                            <div class="settings-title">Koyu Tema</div>
-                            <div class="settings-value">
+                        <div class="app-content-inner">
+                            <div class="settings-item">
+                                <div class="settings-title">Koyu Mod</div>
                                 <label class="switch">
                                     <input type="checkbox" id="darkModeToggle">
                                     <span class="slider"></span>
                                 </label>
                             </div>
-                        </div>
-                        <div class="settings-item" style="flex-direction: column; align-items: flex-start;">
-                            <div class="settings-title">Animasyon Hızı</div>
-                            <div class="speed-slider-container">
-                                <span>Hızlı</span>
-                                <div class="speed-slider" id="speedSlider">
-                                    <div class="speed-slider-fill" id="speedSliderFill"></div>
-                                    <div class="speed-slider-handle" id="speedSliderHandle"></div>
+                            <div class="settings-item" id="wallpaperSettings">
+                                <div class="settings-title">Duvar Kağıdı</div>
+                                <div class="settings-value">Değiştir</div>
+                            </div>
+                            <div class="wallpaper-options" id="wallpaperOptions">
+                                <div class="wallpaper-option" style="background-image: url('https://source.unsplash.com/random/360x740/?abstract,gradient');"></div>
+                                <div class="wallpaper-option" style="background-image: url('https://source.unsplash.com/random/360x740/?nature');"></div>
+                                <div class="wallpaper-option" style="background-image: url('https://source.unsplash.com/random/360x740/?city');"></div>
+                                <div class="wallpaper-option" style="background-image: url('https://source.unsplash.com/random/360x740/?space');"></div>
+                            </div>
+                            <div class="settings-item" id="themeSettings">
+                                <div class="settings-title">Tema Rengi</div>
+                                <div class="settings-value">Turuncu</div>
+                            </div>
+                            <div class="color-options" id="colorOptions">
+                                <div class="color-option dark-orange-theme active" style="background: #ff7b25;"></div>
+                                <div class="color-option blue-theme" style="background: #2196F3;"></div>
+                                <div class="color-option green-theme" style="background: #4CAF50;"></div>
+                                <div class="color-option red-theme" style="background: #FF5722;"></div>
+                                <div class="color-option purple-theme" style="background: #9C27B0;"></div>
+                                <div class="color-option pink-theme" style="background: #E91E63;"></div>
+                                <div class="color-option teal-theme" style="background: #009688;"></div>
+                                <div class="color-option cyan-theme" style="background: #00BCD4;"></div>
+                                <div class="color-option yellow-theme" style="background: #FFEB3B;"></div>
+                                <div class="color-option amber-theme" style="background: #FFC107;"></div>
+                            </div>
+                            <div class="settings-item" id="rgbColorSettings">
+                                <div class="settings-title">Özel Renk</div>
+                                <div class="settings-value">RGB Ayarla</div>
+                            </div>
+                            <div class="rgb-picker" id="rgbPicker">
+                                <div class="rgb-preview"></div>
+                                <div class="rgb-slider-container">
+                                    <div class="rgb-slider-label">
+                                        <span>Kırmızı</span>
+                                        <span id="redValue">255</span>
+                                    </div>
+                                    <input type="range" min="0" max="255" value="255" class="rgb-slider" id="redSlider">
                                 </div>
-                                <span>Yavaş</span>
-                            </div>
-                            <div class="speed-value" id="speedValue">1.0s</div>
-                        </div>
-
-                        <!-- Auto Opener Speed Setting -->
-                        <div class="settings-item" style="flex-direction: column; align-items: flex-start;">
-                            <div class="settings-title">Auto Opener Hızı</div>
-                            <div class="speed-slider-container">
-                                <span>Hızlı</span>
-                                <div class="speed-slider" id="autoOpenerSpeedSlider">
-                                    <div class="speed-slider-fill" id="autoOpenerSpeedSliderFill"></div>
-                                    <div class="speed-slider-handle" id="autoOpenerSpeedSliderHandle"></div>
+                                <div class="rgb-slider-container">
+                                    <div class="rgb-slider-label">
+                                        <span>Yeşil</span>
+                                        <span id="greenValue">123</span>
+                                    </div>
+                                    <input type="range" min="0" max="255" value="123" class="rgb-slider" id="greenSlider">
                                 </div>
-                                <span>Yavaş</span>
+                                <div class="rgb-slider-container">
+                                    <div class="rgb-slider-label">
+                                        <span>Mavi</span>
+                                        <span id="blueValue">37</span>
+                                    </div>
+                                    <input type="range" min="0" max="255" value="37" class="rgb-slider" id="blueSlider">
+                                </div>
                             </div>
-                            <div class="speed-value" id="autoOpenerSpeedValue">2.0s</div>
-                        </div>
-
-                        <div class="animation-options">
-                            <div class="animation-option">
-                                <div class="animation-label">Açılış Animasyonu</div>
-                                <select class="animation-select" id="openAnimation">
-                                    <option value="zoom">Zoom</option>
-                                    <option value="slide">Slide</option>
-                                    <option value="fade">Fade</option>
-                                    <option value="flip">Flip</option>
-                                    <option value="bounce">Bounce</option>
-                                    <option value="shrink">Shrink & Move</option>
-                                    <option value="rotate">Rotate</option>
-                                    <option value="scale">Scale Up</option>
-                                    <option value="slideUp">Slide Up</option>
-                                    <option value="slideDown">Slide Down</option>
-                                    <option value="swirl">Swirl</option>
-                                    <option value="jelly">Jelly Effect</option>
-                                    <option value="wipe">Wipe</option>
-                                    <option value="cube">Cube</option>
-                                    <option value="flipX">Flip Horizontal</option>
-                                    <option value="flipY">Flip Vertical</option>
-                                    <option value="fall">Fall</option>
-                                </select>
+                            <div class="settings-item">
+                                <div class="settings-title">Animasyon Hızı</div>
+                                <div class="settings-value">Orta</div>
                             </div>
-                            <div class="animation-option">
-                                <div class="animation-label">Kapanış Animasyonu</div>
-                                <select class="animation-select" id="closeAnimation">
-                                    <option value="zoom">Zoom</option>
-                                    <option value="slide">Slide</option>
-                                    <option value="fade">Fade</option>
-                                    <option value="flip">Flip</option>
-                                    <option value="bounce">Bounce</option>
-                                    <option value="shrink">Shrink & Move</option>
-                                    <option value="rotate">Rotate</option>
-                                    <option value="scale">Scale Down</option>
-                                    <option value="slideUp">Slide Up</option>
-                                    <option value="slideDown">Slide Down</option>
-                                    <option value="swirl">Swirl</option>
-                                    <option value="jelly">Jelly Effect</option>
-                                    <option value="wipe">Wipe</option>
-                                    <option value="cube">Cube</option>
-                                    <option value="flipX">Flip Horizontal</option>
-                                    <option value="flipY">Flip Vertical</option>
-                                    <option value="fall">Fall</option>
-                                </select>
-                            </div>
-                            <div class="animation-option">
-                                <div class="animation-label">Animasyon Easing</div>
-                                <select class="animation-select" id="animationEasing">
-                                    <option value="power2.inOut">Smooth</option>
-                                    <option value="elastic.out">Elastic</option>
-                                    <option value="back.out">Back</option>
-                                    <option value="bounce.out">Bounce</option>
-                                    <option value="circ.out">Circular</option>
-                                    <option value="expo.out">Exponential</option>
-                                    <option value="sine.out">Sine</option>
-                                    <option value="steps(4)">Steps</option>
-                                    <option value="power1.inOut">Linear</option>
-                                    <option value="power3.out">Strong</option>
-                                    <option value="power4.out">Very Strong</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <div class="settings-item">
-                            <div class="settings-title">Tam Ekran Modu</div>
-                            <div class="settings-value">
-                                <label class="switch">
-                                    <input type="checkbox" id="fullscreenToggle">
-                                    <span class="slider"></span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="settings-item">
-                            <div class="settings-title">Duvar Kağıdı</div>
-                            <div class="settings-value">
-                                <button id="changeWallpaperBtn">Değiştir</button>
-                            </div>
-                        </div>
-
-                        <div class="wallpaper-options" id="wallpaperOptions">
-                            <div class="wallpaper-option" style="background-image: url('https://source.unsplash.com/random/300x600/?nature');" data-wallpaper="nature"></div>
-                            <div class="wallpaper-option" style="background-image: url('https://source.unsplash.com/random/300x600/?abstract');" data-wallpaper="abstract"></div>
-                            <div class="wallpaper-option" style="background-image: url('https://source.unsplash.com/random/300x600/?city');" data-wallpaper="city"></div>
-                            <div class="wallpaper-option active" style="background-image: url('https://source.unsplash.com/random/300x600/?gradient');" data-wallpaper="gradient"></div>
-                            <div class="wallpaper-option" style="background-image: url('https://source.unsplash.com/random/300x600/?space');" data-wallpaper="space"></div>
-                            <div class="wallpaper-option" style="background-image: url('https://source.unsplash.com/random/300x600/?water');" data-wallpaper="water"></div>
-                        </div>
-
-                        <div class="option-group">
-                            <div class="settings-title">Tema Rengi</div>
-                            <div class="color-options">
-                                <div class="color-option active" style="background: #ff7b25;" data-color="ff7b25" data-theme="dark-orange-theme"></div>
-                                <div class="color-option" style="background: #2196F3;" data-color="2196F3" data-theme="blue-theme"></div>
-                                <div class="color-option" style="background: #4CAF50;" data-color="4CAF50" data-theme="green-theme"></div>
-                                <div class="color-option" style="background: #FF5722;" data-color="FF5722" data-theme="red-theme"></div>
-                                <div class="color-option" style="background: #9C27B0;" data-color="9C27B0" data-theme="purple-theme"></div>
-                                <div class="color-option" style="background: #E91E63;" data-color="E91E63" data-theme="pink-theme"></div>
-                                <div class="color-option" style="background: #009688;" data-color="009688" data-theme="teal-theme"></div>
-                                <div class="color-option" style="background: #00BCD4;" data-color="00BCD4" data-theme="cyan-theme"></div>
-                                <div class="color-option" style="background: #FFEB3B;" data-color="FFEB3B" data-theme="yellow-theme"></div>
-                                <div class="color-option" style="background: #FFC107;" data-color="FFC107" data-theme="amber-theme"></div>
-                                <div class="color-option" id="customColorOption" style="background: var(--theme-color);">
-                                    <i class="fas fa-sliders-h" style="color: white; font-size: 14px;"></i>
+                            <div class="animation-options">
+                                <div class="speed-slider-container">
+                                    <span>Yavaş</span>
+                                    <div class="speed-slider">
+                                        <div class="speed-slider-fill"></div>
+                                        <div class="speed-slider-handle"></div>
+                                    </div>
+                                    <span>Hızlı</span>
+                                </div>
+                                <div class="speed-value">Orta</div>
+                                <div class="settings-item">
+                                    <div class="settings-title">Animasyon Stili</div>
+                                    <div class="settings-value">Varsayılan</div>
+                                </div>
+                                <div class="animation-option">
+                                    <div class="animation-label">Açılış Animasyonu</div>
+                                    <select class="animation-select" id="animationSelect">
+                                        <option>Varsayılan</option>
+                                        <option>OriginOS</option>
+                                        <option>Yayılma</option>
+                                        <option>Hafif</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- RGB Color Picker -->
-                        <div class="rgb-picker" id="rgbPicker">
-                            <div class="rgb-preview"></div>
-                            <div class="rgb-slider-container">
-                                <div class="rgb-slider-label">
-                                    <span>Kırmızı</span>
-                                    <span id="redValue">255</span>
-                                </div>
-                                <input type="range" min="0" max="255" value="255" class="rgb-slider" id="redSlider">
-                            </div>
-                            <div class="rgb-slider-container">
-                                <div class="rgb-slider-label">
-                                    <span>Yeşil</span>
-                                    <span id="greenValue">123</span>
-                                </div>
-                                <input type="range" min="0" max="255" value="123" class="rgb-slider" id="greenSlider">
-                            </div>
-                            <div class="rgb-slider-container">
-                                <div class="rgb-slider-label">
-                                    <span>Mavi</span>
-                                    <span id="blueValue">37</span>
-                                </div>
-                                <input type="range" min="0" max="255" value="37" class="rgb-slider" id="blueSlider">
-                            </div>
-                            <button id="applyRgbColor" style="width: 100%; padding: 10px; background: var(--theme-color); color: white; border: none; border-radius: 5px; margin-top: 10px;">Uygula</button>
-                        </div>
-
-                        <div class="settings-item">
-                            <div class="settings-title">Sistem</div>
-                            <div class="settings-value">KedyOS 22.0.1</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Calculator App -->
-                <div class="app-window" id="calculatorApp">
-                    <div class="app-header">
-                        <span>Hesap Makinesi</span>
-                    </div>
-                    <div class="app-content calculator">
-                        <div class="calculator-display" id="calcDisplay">0</div>
-                        <div class="calculator-btn">7</div>
-                        <div class="calculator-btn">8</div>
-                        <div class="calculator-btn">9</div>
-                        <div class="calculator-btn operator">÷</div>
-                        <div class="calculator-btn">4</div>
-                        <div class="calculator-btn">5</div>
-                        <div class="calculator-btn">6</div>
-                        <div class="calculator-btn operator">×</div>
-                        <div class="calculator-btn">1</div>
-                        <div class="calculator-btn">2</div>
-                        <div class="calculator-btn">3</div>
-                        <div class="calculator-btn operator">-</div>
-                        <div class="calculator-btn">0</div>
-                        <div class="calculator-btn">.</div>
-                        <div class="calculator-btn equals">=</div>
-                        <div class="calculator-btn operator">+</div>
                     </div>
                 </div>
 
                 <!-- Notes App -->
                 <div class="app-window" id="notesApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
                         <span>Notlar</span>
                     </div>
-                    <div class="app-content notes">
-                        <div class="notes-toolbar">
-                            <button style="margin-right: 10px;">Yeni</button>
-                            <button>Kaydet</button>
+                    <div class="app-content">
+                        <div class="app-content-inner notes">
+                            <div class="notes-toolbar">
+                                <button id="newNoteBtn">
+                                    <i class="fas fa-plus"></i> Yeni
+                                </button>
+                                <button id="saveNoteBtn">
+                                    <i class="fas fa-save"></i> Kaydet
+                                </button>
+                            </div>
+                            <div class="notes-content">
+                                <textarea class="notes-textarea" placeholder="Buraya notlarınızı yazın..."></textarea>
+                            </div>
                         </div>
-                        <div class="notes-content">
-                            <textarea class="notes-textarea" placeholder="Buraya notlarınızı yazın..."></textarea>
+                    </div>
+                </div>
+
+                <!-- Gallery App -->
+                <div class="app-window" id="galleryApp">
+                    <div class="app-backdrop"></div>
+                    <div class="app-header">
+                        <span>Galeri</span>
+                    </div>
+                    <div class="app-content">
+                        <div class="app-content-inner">
+                            <div class="gallery-container">
+                                <div class="gallery-item">
+                                    <img src="https://source.unsplash.com/random/300x300/?nature" alt="Nature">
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="https://source.unsplash.com/random/300x300/?city" alt="City">
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="https://source.unsplash.com/random/300x300/?animal" alt="Animal">
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="https://source.unsplash.com/random/300x300/?food" alt="Food">
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="https://source.unsplash.com/random/300x300/?portrait" alt="Portrait">
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="https://source.unsplash.com/random/300x300/?architecture" alt="Architecture">
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="https://source.unsplash.com/random/300x300/?technology" alt="Technology">
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="https://source.unsplash.com/random/300x300/?art" alt="Art">
+                                </div>
+                                <div class="gallery-item">
+                                    <img src="https://source.unsplash.com/random/300x300/?travel" alt="Travel">
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Messages App -->
                 <div class="app-window" id="messagesApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
                         <span>Mesajlar</span>
                     </div>
                     <div class="app-content">
-                        <div class="messages-container">
-                            <div class="message-item">
-                                <div class="message-avatar">A</div>
-                                <div class="message-content">
-                                    <div class="message-sender">Ahmet</div>
-                                    <div class="message-text">Merhaba, nasılsın?</div>
-                                    <div class="message-time">12:30</div>
+                        <div class="app-content-inner">
+                            <div class="messages-container">
+                                <div class="message-item">
+                                    <div class="message-avatar">A</div>
+                                    <div class="message-content">
+                                        <div class="message-sender">Ahmet</div>
+                                        <div class="message-text">Merhaba, nasılsın?</div>
+                                        <div class="message-time">10:30</div>
+                                    </div>
+                                </div>
+                                <div class="message-item">
+                                    <div class="message-avatar">M</div>
+                                    <div class="message-content">
+                                        <div class="message-sender">Mehmet</div>
+                                        <div class="message-text">Toplantı saatini hatırlatır mısın?</div>
+                                        <div class="message-time">09:45</div>
+                                    </div>
+                                </div>
+                                <div class="message-item">
+                                    <div class="message-avatar">E</div>
+                                    <div class="message-content">
+                                        <div class="message-sender">Elif</div>
+                                        <div class="message-text">Dosyaları gönderdim, kontrol edebilir misin?</div>
+                                        <div class="message-time">Dün</div>
+                                    </div>
+                                </div>
+                                <div class="message-item">
+                                    <div class="message-avatar">C</div>
+                                    <div class="message-content">
+                                        <div class="message-sender">Can</div>
+                                        <div class="message-text">Yarın buluşalım mı?</div>
+                                        <div class="message-time">Dün</div>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="message-item">
-                                <div class="message-avatar">M</div>
-                                <div class="message-content">
-                                    <div class="message-sender">Mehmet</div>
-                                    <div class="message-text">Toplantı 3'te olacak, katılabilir misin?</div>
-                                    <div class="message-time">12:35</div>
-                                </div>
+                            <div class="message-input-container">
+                                <input type="text" class="message-input" placeholder="Mesaj yaz...">
+                                <button class="message-send-btn">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
                             </div>
-                            <div class="message-item" style="justify-content: flex-end;">
-                                <div class="message-content">
-                                    <div class="message-text">Evet, katılacağım</div>
-                                    <div class="message-time">12:36</div>
-                                </div>
-                            </div>
-                            <div class="message-item">
-                                <div class="message-avatar">A</div>
-                                <div class="message-content">
-                                    <div class="message-sender">Ayşe</div>
-                                    <div class="message-text">Yarın buluşalım mı?</div>
-                                    <div class="message-time">13:45</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Camera App -->
+                <div class="app-window" id="cameraApp">
+                    <div class="app-backdrop"></div>
+                    <div class="app-header">
+                        <span>Kamera</span>
+                    </div>
+                    <div class="app-content">
+                        <div class="app-content-inner" style="display: flex; justify-content: center; align-items: center; height: 100%;">
+                            <div style="text-align: center;">
+                                <i class="fas fa-camera" style="font-size: 60px; color: var(--theme-color); margin-bottom: 20px;"></i>
+                                <h3>Kamera</h3>
+                                <p>Fotoğraf ve video çekmek için hazır</p>
+                                <div style="width: 100px; height: 100px; border-radius: 50%; background: var(--theme-color); margin: 30px auto; display: flex; align-items: center; justify-content: center; color: white;">
+                                    <i class="fas fa-camera" style="font-size: 30px;"></i>
                                 </div>
                             </div>
                         </div>
-                        <div class="message-input-container">
-                            <input type="text" class="message-input" placeholder="Mesaj yaz...">
-                            <button class="message-send-btn">
-                                <i class="fas fa-paper-plane"></i>
-                            </button>
+                    </div>
+                </div>
+
+                <!-- Email App -->
+                <div class="app-window" id="emailApp">
+                    <div class="app-backdrop"></div>
+                    <div class="app-header">
+                        <span>T-Mail</span>
+                    </div>
+                    <div class="app-content">
+                        <div class="app-content-inner">
+                            <div class="messages-container">
+                                <div class="message-item">
+                                    <div class="message-avatar">T</div>
+                                    <div class="message-content">
+                                        <div class="message-sender">Teknoloji Haberleri</div>
+                                        <div class="message-text">Yeni çıkan telefonlar hakkında bilgiler</div>
+                                        <div class="message-time">2 gün önce</div>
+                                    </div>
+                                </div>
+                                <div class="message-item">
+                                    <div class="message-avatar">F</div>
+                                    <div class="message-content">
+                                        <div class="message-sender">Fatura Bilgisi</div>
+                                        <div class="message-text">Mayıs ayı faturanız hazır</div>
+                                        <div class="message-time">3 gün önce</div>
+                                    </div>
+                                </div>
+                                <div class="message-item">
+                                    <div class="message-avatar">S</div>
+                                    <div class="message-content">
+                                        <div class="message-sender">Sosyal Medya</div>
+                                        <div class="message-text">Yeni bildirimleriniz var</div>
+                                        <div class="message-time">1 hafta önce</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Device Info App -->
                 <div class="app-window" id="deviceApp">
+                    <div class="app-backdrop"></div>
                     <div class="app-header">
-                        <span>Cihaz Bilgisi</span>
+                        <span>DevInfo</span>
                     </div>
-                    <div class="app-content device-info">
-                        <div class="device-card">
-                            <div class="device-header">
-                                <div class="device-image"></div>
-                                <div>
-                                    <div class="device-title">ASUS ROG Phone 7</div>
-                                    <div class="device-subtitle">Gaming Smartphone</div>
+                    <div class="app-content">
+                        <div class="app-content-inner device-info">
+                            <div class="device-card">
+                                <div class="device-header">
+                                    <div class="device-image"></div>
+                                    <div>
+                                        <div class="device-title">KedyPhone 7</div>
+                                        <div class="device-subtitle">KedyOS 22.0.1</div>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <div class="device-section-title">Genel Bilgiler</div>
-                        <div class="device-card">
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-microchip spec-icon"></i>İşletim Sistemi</div>
-                                <div class="spec-value">KedyOS 22.0.1</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-mobile-alt spec-icon"></i>Model</div>
-                                <div class="spec-value">ASUS_AI2205_D</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-code-branch spec-icon"></i>Donanım Versiyonu</div>
-                                <div class="spec-value">1.0.0</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-code spec-icon"></i>Yazılım Versiyonu</div>
-                                <div class="spec-value">22.0.1.202305</div>
-                            </div>
-                        </div>
-
-                        <div class="device-section-title">Donanım</div>
-                        <div class="device-card">
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-microchip spec-icon"></i>İşlemci</div>
-                                <div class="spec-value">Qualcomm Snapdragon 8 Gen 2</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-tachometer-alt spec-icon"></i>Çekirdek</div>
-                                <div class="spec-value">8 Çekirdek (3.2 GHz)</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-gamepad spec-icon"></i>GPU</div>
-                                <div class="spec-value">Adreno 740</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-memory spec-icon"></i>RAM</div>
-                                <div class="spec-value">16 GB LPDDR5X</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-hdd spec-icon"></i>Depolama</div>
-                                <div class="spec-value">512 GB UFS 4.0</div>
-                            </div>
-                        </div>
-
-                        <div class="device-section-title">Ekran</div>
-                        <div class="device-card">
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-mobile spec-icon"></i>Boyut</div>
-                                <div class="spec-value">6.78" AMOLED</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-tachometer-alt spec-icon"></i>Yenileme Hızı</div>
-                                <div class="spec-value">165Hz</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-expand spec-icon"></i>Çözünürlük</div>
-                                <div class="spec-value">2448x1080 (FHD+)</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-palette spec-icon"></i>Renk Derinliği</div>
-                                <div class="spec-value">1B renk, HDR10+</div>
-                            </div>
-                        </div>
-
-                        <div class="device-section-title">Pil</div>
-                        <div class="device-card">
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-battery-full spec-icon"></i>Kapasite</div>
-                                <div class="spec-value">6000 mAh</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-bolt spec-icon"></i>Şarj</div>
-                                <div class="spec-value">65W Hızlı Şarj</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-plug spec-icon"></i>Kablosuz Şarj</div>
-                                <div class="spec-value">Yok</div>
-                            </div>
-                        </div>
-
-                        <div class="device-section-title">Kamera</div>
-                        <div class="device-card">
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-camera spec-icon"></i>Ana Kamera</div>
-                                <div class="spec-value">50 MP, f/1.9, OIS, EIS</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-camera spec-icon"></i>Ultra Geniş</div>
-                                <div class="spec-value">13 MP, f/2.2, 120°</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-camera spec-icon"></i>Makro</div>
-                                <div class="spec-value">5 MP, f/2.0</div>
-                            </div>
-                            <div class="spec-item">
-                                <div class="spec-label"><i class="fas fa-user spec-icon"></i>Ön Kamera</div>
-                                <div class="spec-value">32 MP, f/2.5</div>
+                                <div class="device-section-title">Genel Bilgiler</div>
+                                <div class="spec-item">
+                                    <div class="spec-label"><i class="fas fa-microchip spec-icon"></i>İşlemci</div>
+                                    <div class="spec-value">KedyX 2.5GHz (8 çekirdek)</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-label"><i class="fas fa-memory spec-icon"></i>Bellek</div>
+                                    <div class="spec-value">8 GB RAM</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-label"><i class="fas fa-hdd spec-icon"></i>Depolama</div>
+                                    <div class="spec-value">128 GB (112 GB boş)</div>
+                                </div>
+                                <div class="device-section-title">Ağ Bilgileri</div>
+                                <div class="spec-item">
+                                    <div class="spec-label"><i class="fas fa-wifi spec-icon"></i>Wi-Fi</div>
+                                    <div class="spec-value">Connected (KedyNet)</div>
+                                </div>
+                                <div class="spec-item">
+                                    <div class="spec-label"><i class="fas fa-sim-card spec-icon"></i>Operatör</div>
+                                    <div class="spec-value">KedyTel</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                <!-- Home Indicator -->
                 <div class="home-indicator" id="homeIndicator"></div>
             </div>
         </div>
     </div>
 
-    <button class="fullscreen-btn" id="fullscreenBtn">⤢</button>
-    <!-- Auto App Opener -->
-    <left>
-        <div class="auto-opener-container" id="autoOpenerContainer">
-            <button class="auto-opener-btn" id="autoOpenerBtn">
-                <i class="fas fa-play"></i> Auto
-            </button>
-        </div>
-    </left>
-
-
-
     <script>
+        // Boot Screen Animation
         document.addEventListener('DOMContentLoaded', function () {
-            // Elementleri seç
             const bootScreen = document.getElementById('bootScreen');
             const bootProgress = document.getElementById('bootProgress');
             const bootText = document.getElementById('bootText');
             const phone = document.getElementById('phone');
+
+            // Boot progress animation
+            let progress = 0;
+            const bootInterval = setInterval(function () {
+                progress += Math.random() * 10;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(bootInterval);
+
+                    // Update boot text
+                    bootText.textContent = "Başlatma tamamlandı";
+
+                    // Hide boot screen and show phone
+                    setTimeout(function () {
+                        gsap.to(bootScreen, {
+                            opacity: 0,
+                            duration: 0.5,
+                            onComplete: function () {
+                                bootScreen.style.display = 'none';
+                                phone.style.display = 'block';
+
+                                // Start phone animations
+                                initPhone();
+                            }
+                        });
+                    }, 500);
+                }
+                bootProgress.style.width = progress + '%';
+
+                // Update boot text at certain progress points
+                if (progress < 30) {
+                    bootText.textContent = "Sistem başlatılıyor...";
+                } else if (progress < 60) {
+                    bootText.textContent = "Servisler yükleniyor...";
+                } else if (progress < 90) {
+                    bootText.textContent = "Son hazırlıklar yapılıyor...";
+                }
+            }, 200);
+        });
+
+        // Phone initialization
+        function initPhone() {
+            // Update time and battery
+            updateTime();
+            updateBattery();
+
+            // Set intervals for time and battery updates
+            setInterval(updateTime, 60000);
+            setInterval(updateBattery, 30000);
+
+            // Initialize app functionality
+            initApps();
+
+            // Initialize control center and notification center
+            initControlCenter();
+            initNotificationCenter();
+
+            // Initialize settings
+            initSettings();
+
+            // Initialize clock
+            initClock();
+
+            // Initialize calculator
+            initCalculator();
+
+            // Initialize notes
+            initNotes();
+        }
+
+        // Update time function
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('current-time').textContent = `${hours}:${minutes}`;
+
+            // Update digital clock if app is open
+            const digitalClock = document.getElementById('digitalClock');
+            if (digitalClock) {
+                const seconds = now.getSeconds().toString().padStart(2, '0');
+                digitalClock.textContent = `${hours}:${minutes}:${seconds}`;
+            }
+        }
+
+        // Update battery function
+        function updateBattery() {
+            // Simulate battery level between 20% and 100%
+            const batteryLevel = document.getElementById('batteryLevel');
+            const chargingIcon = document.getElementById('chargingIcon');
+
+            // Random battery level between 20% and 100%
+            const level = Math.floor(Math.random() * 80) + 20;
+            batteryLevel.style.width = level + '%';
+
+            // Random charging status (20% chance)
+            const isCharging = Math.random() < 0.2;
+            chargingIcon.style.display = isCharging ? 'block' : 'none';
+
+            // Change battery color based on level
+            if (level < 20) {
+                batteryLevel.style.background = '#ff4757';
+            } else if (level < 50) {
+                batteryLevel.style.background = '#ffa502';
+            } else {
+                batteryLevel.style.background = 'white';
+            }
+        }
+
+        // Initialize apps
+        function initApps() {
             const appIcons = document.querySelectorAll('.app-icon');
+            const homeScreen = document.getElementById('homeScreen');
+            const homeIndicator = document.getElementById('homeIndicator');
+
+            appIcons.forEach(icon => {
+                icon.addEventListener('click', function () {
+                    const appName = this.getAttribute('data-app');
+                    openApp(appName, this);
+                });
+            });
+
+            // Home indicator functionality
+            homeIndicator.addEventListener('click', function () {
+                closeAllApps();
+            });
+
+            // Dock icons functionality
+            document.getElementById('openControlCenter').addEventListener('click', function () {
+                document.getElementById('controlCenter').classList.add('active');
+            });
+
+            document.getElementById('openNotificationCenter').addEventListener('click', function () {
+                document.getElementById('notificationCenter').classList.add('active');
+            });
+
+            document.getElementById('openPhoneApp').addEventListener('click', function () {
+                openApp('phone');
+            });
+
+            document.getElementById('openContactsApp').addEventListener('click', function () {
+                openApp('contacts');
+            });
+        }
+
+        // Open app with OriginOS style animation
+        function openApp(appName, iconElement = null) {
+            const appWindow = document.getElementById(appName + 'App');
+            const appBackdrop = appWindow.querySelector('.app-backdrop');
+            const appContentInner = appWindow.querySelector('.app-content-inner');
+            const homeScreen = document.getElementById('homeScreen');
+
+            // Create icon preview element
+            const iconPreview = document.createElement('div');
+            iconPreview.className = 'app-icon-preview';
+
+            if (iconElement) {
+                const icon = iconElement.querySelector('i').cloneNode(true);
+                const text = iconElement.querySelector('span').cloneNode(true);
+
+                iconPreview.appendChild(icon);
+                iconPreview.appendChild(text);
+
+                // Get icon position
+                const iconRect = iconElement.getBoundingClientRect();
+                const homeRect = homeScreen.getBoundingClientRect();
+
+                // Position the preview at the icon location
+                iconPreview.style.position = 'absolute';
+                iconPreview.style.left = (iconRect.left - homeRect.left) + 'px';
+                iconPreview.style.top = (iconRect.top - homeRect.top) + 'px';
+                iconPreview.style.width = iconRect.width + 'px';
+                iconPreview.style.height = (iconRect.height - 20) + 'px'; // Adjust for text
+
+                homeScreen.appendChild(iconPreview);
+
+                // Animate icon to center
+                const centerX = window.innerWidth / 2 - 50;
+                const centerY = window.innerHeight / 2 - 50;
+
+                gsap.to(iconPreview, {
+                    left: centerX,
+                    top: centerY,
+                    width: '100px',
+                    height: '100px',
+                    duration: 0.4,
+                    ease: 'power2.out',
+                    onComplete: function () {
+                        // Show app window
+                        appWindow.style.display = 'flex';
+                        appBackdrop.classList.add('visible');
+
+                        // Animate icon preview to app icon
+                        const appIcon = appWindow.querySelector('.app-header i');
+                        if (appIcon) {
+                            const appIconRect = appIcon.getBoundingClientRect();
+
+                            gsap.to(iconPreview, {
+                                left: (appIconRect.left - homeRect.left),
+                                top: (appIconRect.top - homeRect.top),
+                                width: '30px',
+                                height: '30px',
+                                duration: 0.3,
+                                delay: 0.1,
+                                onComplete: function () {
+                                    // Remove icon preview
+                                    iconPreview.remove();
+
+                                    // Show app content
+                                    setTimeout(function () {
+                                        appContentInner.classList.add('visible');
+                                    }, 100);
+                                }
+                            });
+                        } else {
+                            // If no app icon, just fade out
+                            gsap.to(iconPreview, {
+                                opacity: 0,
+                                scale: 1.5,
+                                duration: 0.3,
+                                onComplete: function () {
+                                    iconPreview.remove();
+                                    appContentInner.classList.add('visible');
+                                }
+                            });
+                        }
+                    }
+                });
+            } else {
+                // If no icon element provided (dock icons), use default animation
+                appWindow.style.display = 'flex';
+                appBackdrop.classList.add('visible');
+
+                // Create a temporary icon in the center
+                iconPreview.style.position = 'fixed';
+                iconPreview.style.left = '50%';
+                iconPreview.style.top = '50%';
+                iconPreview.style.transform = 'translate(-50%, -50%)';
+                iconPreview.style.width = '100px';
+                iconPreview.style.height = '100px';
+
+                // Add appropriate icon based on app
+                const icon = document.createElement('i');
+                switch (appName) {
+                    case 'phone':
+                        icon.className = 'fas fa-phone';
+                        break;
+                    case 'contacts':
+                        icon.className = 'fas fa-user';
+                        break;
+                    default:
+                        icon.className = 'fas fa-mobile-alt';
+                }
+
+                const text = document.createElement('span');
+                text.textContent = appName.charAt(0).toUpperCase() + appName.slice(1);
+
+                iconPreview.appendChild(icon);
+                iconPreview.appendChild(text);
+                document.body.appendChild(iconPreview);
+
+                // Animate icon to app header
+                setTimeout(function () {
+                    appWindow.style.display = 'flex';
+                    appBackdrop.classList.add('visible');
+
+                    const appHeader = appWindow.querySelector('.app-header');
+                    if (appHeader) {
+                        gsap.to(iconPreview, {
+                            x: -iconPreview.offsetWidth / 2 + 20,
+                            y: -iconPreview.offsetHeight / 2 - 30,
+                            scale: 0.5,
+                            duration: 0.3,
+                            onComplete: function () {
+                                iconPreview.remove();
+                                appContentInner.classList.add('visible');
+                            }
+                        });
+                    } else {
+                        iconPreview.remove();
+                        appContentInner.classList.add('visible');
+                    }
+                }, 100);
+            }
+
+            // Hide home screen
+            homeScreen.style.filter = 'blur(5px)';
+        }
+
+        // Close all apps
+        function closeAllApps() {
             const appWindows = document.querySelectorAll('.app-window');
             const homeScreen = document.getElementById('homeScreen');
-            const fullscreenToggle = document.getElementById('fullscreenToggle');
-            const fullscreenBtn = document.getElementById('fullscreenBtn');
-            const wallpaper = document.getElementById('wallpaper');
-            const changeWallpaperBtn = document.getElementById('changeWallpaperBtn');
-            const wallpaperOptions = document.getElementById('wallpaperOptions');
-            const wallpaperOptionItems = document.querySelectorAll('.wallpaper-option');
-            const currentTimeElement = document.getElementById('current-time');
-            const speedSlider = document.getElementById('speedSlider');
-            const speedSliderHandle = document.getElementById('speedSliderHandle');
-            const speedSliderFill = document.getElementById('speedSliderFill');
-            const speedValue = document.getElementById('speedValue');
-            const colorOptions = document.querySelectorAll('.color-option');
-            const bluetoothToggle = document.getElementById('bluetoothToggle');
-            const darkModeToggle = document.getElementById('darkModeToggle');
-            const chargingIcon = document.getElementById('chargingIcon');
-            const batteryLevel = document.getElementById('batteryLevel');
-            const homeIndicator = document.getElementById('homeIndicator');
-            const resetButton = document.getElementById('resetButton');
+
+            appWindows.forEach(app => {
+                if (app.style.display === 'flex') {
+                    const appBackdrop = app.querySelector('.app-backdrop');
+                    const appContentInner = app.querySelector('.app-content-inner');
+
+                    appContentInner.classList.remove('visible');
+                    appBackdrop.classList.remove('visible');
+
+                    setTimeout(function () {
+                        app.style.display = 'none';
+                    }, 300);
+                }
+            });
+
+            // Restore home screen
+            homeScreen.style.filter = 'none';
+        }
+
+        // Initialize control center
+        function initControlCenter() {
             const controlCenter = document.getElementById('controlCenter');
-            const notificationCenter = document.getElementById('notificationCenter');
-            const openControlCenter = document.getElementById('openControlCenter');
-            const openNotificationCenter = document.getElementById('openNotificationCenter');
             const closeControlCenter = document.getElementById('closeControlCenter');
+
+            closeControlCenter.addEventListener('click', function () {
+                controlCenter.classList.remove('active');
+            });
+
+            // Toggle functionality for control items
+            document.getElementById('wifiControl').addEventListener('click', function () {
+                this.classList.toggle('active');
+            });
+
+            document.getElementById('bluetoothControl').addEventListener('click', function () {
+                this.classList.toggle('active');
+            });
+
+            document.getElementById('darkModeControl').addEventListener('click', function () {
+                document.body.classList.toggle('light-mode');
+                this.classList.toggle('active');
+            });
+
+            document.getElementById('notificationsControl').addEventListener('click', function () {
+                this.classList.toggle('active');
+            });
+        }
+
+        // Initialize notification center
+        function initNotificationCenter() {
+            const notificationCenter = document.getElementById('notificationCenter');
             const closeNotificationCenter = document.getElementById('closeNotificationCenter');
-            const openPhoneApp = document.getElementById('openPhoneApp');
-            const openContactsApp = document.getElementById('openContactsApp');
-            const telegramNotification = document.getElementById('telegramNotification');
-            const wifiControl = document.getElementById('wifiControl');
-            const bluetoothControl = document.getElementById('bluetoothControl');
-            const darkModeControl = document.getElementById('darkModeControl');
-            const notificationsControl = document.getElementById('notificationsControl');
-            const clockHour = document.getElementById('clockHour');
-            const clockMinute = document.getElementById('clockMinute');
-            const clockSecond = document.getElementById('clockSecond');
-            const digitalClock = document.getElementById('digitalClock');
-            const autoOpenerContainer = document.getElementById('autoOpenerContainer');
-            const autoOpenerBtn = document.getElementById('autoOpenerBtn');
-            const customColorOption = document.getElementById('customColorOption');
+
+            closeNotificationCenter.addEventListener('click', function () {
+                notificationCenter.classList.remove('active');
+            });
+
+            // Notification click functionality
+            document.getElementById('telegramNotification').addEventListener('click', function () {
+                openApp('messages');
+                notificationCenter.classList.remove('active');
+            });
+        }
+
+        // Initialize settings
+        function initSettings() {
+            // Wallpaper settings
+            const wallpaperSettings = document.getElementById('wallpaperSettings');
+            const wallpaperOptions = document.getElementById('wallpaperOptions');
+
+            wallpaperSettings.addEventListener('click', function () {
+                wallpaperOptions.style.display = wallpaperOptions.style.display === 'grid' ? 'none' : 'grid';
+            });
+
+            // Wallpaper selection
+            const wallpaperOptionsItems = wallpaperOptions.querySelectorAll('.wallpaper-option');
+            wallpaperOptionsItems.forEach(option => {
+                option.addEventListener('click', function () {
+                    // Remove active class from all options
+                    wallpaperOptionsItems.forEach(item => {
+                        item.classList.remove('active');
+                    });
+
+                    // Add active class to selected option
+                    this.classList.add('active');
+
+                    // Change wallpaper
+                    const wallpaper = document.getElementById('wallpaper');
+                    wallpaper.style.backgroundImage = this.style.backgroundImage;
+                });
+            });
+
+            // Theme color settings
+            const themeSettings = document.getElementById('themeSettings');
+            const colorOptions = document.getElementById('colorOptions');
+
+            themeSettings.addEventListener('click', function () {
+                colorOptions.style.display = colorOptions.style.display === 'grid' ? 'none' : 'grid';
+            });
+
+            // Color selection
+            const colorOptionsItems = colorOptions.querySelectorAll('.color-option');
+            colorOptionsItems.forEach(option => {
+                option.addEventListener('click', function () {
+                    // Remove active class from all options
+                    colorOptionsItems.forEach(item => {
+                        item.classList.remove('active');
+                    });
+
+                    // Add active class to selected option
+                    this.classList.add('active');
+
+                    // Change theme
+                    const themeClass = Array.from(this.classList).find(cls => cls.endsWith('-theme'));
+                    if (themeClass) {
+                        // Remove all theme classes first
+                        document.body.classList.remove(
+                            'dark-orange-theme', 'blue-theme', 'green-theme', 'red-theme',
+                            'purple-theme', 'pink-theme', 'teal-theme', 'cyan-theme',
+                            'yellow-theme', 'amber-theme'
+                        );
+
+                        // Add selected theme class
+                        document.body.classList.add(themeClass);
+                    }
+                });
+            });
+
+            // RGB color picker
+            const rgbColorSettings = document.getElementById('rgbColorSettings');
             const rgbPicker = document.getElementById('rgbPicker');
+
+            rgbColorSettings.addEventListener('click', function () {
+                rgbPicker.style.display = rgbPicker.style.display === 'block' ? 'none' : 'block';
+            });
+
+            // RGB sliders
             const redSlider = document.getElementById('redSlider');
             const greenSlider = document.getElementById('greenSlider');
             const blueSlider = document.getElementById('blueSlider');
             const redValue = document.getElementById('redValue');
             const greenValue = document.getElementById('greenValue');
             const blueValue = document.getElementById('blueValue');
-            const rgbPreview = document.querySelector('.rgb-preview');
-            const applyRgbColor = document.getElementById('applyRgbColor');
+            const rgbPreview = rgbPicker.querySelector('.rgb-preview');
 
-            
-            // Auto opener speed controls
-            const autoOpenerSpeedSlider = document.getElementById('autoOpenerSpeedSlider');
-            const autoOpenerSpeedSliderHandle = document.getElementById('autoOpenerSpeedSliderHandle');
-            const autoOpenerSpeedSliderFill = document.getElementById('autoOpenerSpeedSliderFill');
-            const autoOpenerSpeedValue = document.getElementById('autoOpenerSpeedValue');
-
-            // Değişkenler
-            let currentApp = null;
-            let animationSpeed = 0.3;
-            let autoOpenerSpeed = 0.5; // Default auto opener speed
-            let animationEasing = 'power2.inOut';
-            let isFullscreen = false;
-            let batteryPercentage = 80;
-            let allowAppClick = false;
-            let isDraggingSpeedSlider = false;
-            let iconAnimationTimeout;
-            let openedApps = {};
-            let isInTransition = false;
-            let isControlCenterOpen = false;
-            let isNotificationCenterOpen = false;
-            let isCharging = false;
-            let nextAppToOpen = null;
-            let isAutoOpeningApps = false;
-            let autoOpenInterval;
-            let appIndex = 0;
-            const appNames = ['settings', 'calculator', 'notes', 'camera', 'gallery', 'music', 'browser', 'messages', 'clock', 'calendar', 'weather', 'maps', 'device', 'files', 'contacts', 'email', 'ttr'];
-            let appOpeningAnimations = {}; // Store animation references for cancelling
-
-            // LocalStorage'dan ayarları yükle
-            function loadSettings() {
-                const settings = JSON.parse(localStorage.getItem('kedyosSettings')) || {};
-
-                if (settings.darkMode !== undefined) {
-                    darkModeToggle.checked = settings.darkMode;
-                    toggleDarkMode();
-                }
-
-                if (settings.animationSpeed !== undefined) {
-                    setAnimationSpeed(settings.animationSpeed);
-                }
-
-                if (settings.autoOpenerSpeed !== undefined) {
-                    setAutoOpenerSpeed(settings.autoOpenerSpeed);
-                }
-
-                if (settings.themeColor !== undefined) {
-                    document.documentElement.style.setProperty('--theme-color', settings.themeColor);
-                    updateThemeColorElements(settings.themeColor);
-
-                    // Aktif renk seçeneğini güncelle
-                    colorOptions.forEach(opt => {
-                        opt.classList.remove('active');
-                        if (opt.getAttribute('data-color') && settings.themeColor.toLowerCase().includes(opt.getAttribute('data-color').toLowerCase())) {
-                            opt.classList.add('active');
-                            document.body.classList.add(opt.getAttribute('data-theme'));
-                        }
-                    });
-                }
-
-                if (settings.wallpaper !== undefined) {
-                    wallpaper.style.backgroundImage = `url('${settings.wallpaper}')`;
-
-                    // Aktif duvar kağıdını güncelle
-                    wallpaperOptionItems.forEach(item => {
-                        item.classList.remove('active');
-                        if (item.getAttribute('data-wallpaper') === settings.wallpaperType) {
-                            item.classList.add('active');
-                        }
-                    });
-                }
-            }
-
-            // Ayarları kaydet
-            function saveSettings() {
-                const activeColorOption = document.querySelector('.color-option.active');
-                const activeWallpaperOption = document.querySelector('.wallpaper-option.active');
-
-                const settings = {
-                    darkMode: darkModeToggle.checked,
-                    animationSpeed: animationSpeed,
-                    autoOpenerSpeed: autoOpenerSpeed,
-                    themeColor: document.documentElement.style.getPropertyValue('--theme-color'),
-                    wallpaper: wallpaper.style.backgroundImage.match(/url\(["']?([^"']*)["']?\)/)[1],
-                    wallpaperType: activeWallpaperOption ? activeWallpaperOption.getAttribute('data-wallpaper') : 'gradient'
-                };
-
-                localStorage.setItem('kedyosSettings', JSON.stringify(settings));
-                showToast('Ayarlar kaydedildi!');
-            }
-
-            // Toast mesajı göster
-            function showToast(message) {
-                const toast = document.createElement('div');
-                toast.className = 'toast-message';
-                toast.textContent = message;
-                document.body.appendChild(toast);
-
-                gsap.fromTo(toast,
-                    { y: 20, opacity: 0 },
-                    {
-                        y: 0,
-                        opacity: 1,
-                        duration: 0.3,
-                        onComplete: () => {
-                            setTimeout(() => {
-                                gsap.to(toast, {
-                                    y: -20,
-                                    opacity: 0,
-                                    duration: 0.3,
-                                    onComplete: () => {
-                                        document.body.removeChild(toast);
-                                    }
-                                });
-                            }, 2000);
-                        }
-                    }
-                );
-            }
-
-            // Tema rengine bağlı elementleri güncelle
-            function updateThemeColorElements(color) {
-                document.querySelectorAll('.slider').forEach(slider => {
-                    slider.style.backgroundColor = color;
-                });
-
-                document.querySelectorAll('.speed-slider-fill').forEach(fill => {
-                    fill.style.backgroundColor = color;
-                });
-
-                document.querySelectorAll('.speed-slider-handle').forEach(handle => {
-                    handle.style.backgroundColor = color;
-                });
-
-                document.querySelectorAll('.calculator-btn.equals').forEach(btn => {
-                    btn.style.backgroundColor = color;
-                });
-
-                rgbPreview.style.background = color;
-            }
-
-            // Animasyon hızı slider'ını ayarla
-            function setAnimationSpeed(value) {
-                animationSpeed = 0.2 + (value * 1.1);
-                const position = (animationSpeed - 0.2) / 1.1 * 100;
-                speedSliderHandle.style.left = `${position}%`;
-                speedSliderFill.style.width = `${position}%`;
-                speedValue.textContent = `${animationSpeed.toFixed(1)}s`;
-            }
-
-            // Auto opener hızı slider'ını ayarla
-            function setAutoOpenerSpeed(value) {
-                autoOpenerSpeed = 0.5 + (value * 4); // 1-4 saniye aralığı
-                const position = (autoOpenerSpeed - 0.5) / 4 * 100;
-                autoOpenerSpeedSliderHandle.style.left = `${position}%`;
-                autoOpenerSpeedSliderFill.style.width = `${position}%`;
-                autoOpenerSpeedValue.textContent = `${autoOpenerSpeed.toFixed(1)}s`;
-            }
-
-            // Boot Screen Animation
-            function simulateBoot() {
-                let progress = 0;
-                const bootMessages = [
-                    "Donanım başlatılıyor...",
-                    "Çekirdek yükleniyor...",
-                    "Sistem servisleri başlatılıyor...",
-                    "Arayüz yükleniyor...",
-                    "Hazırlanıyor..."
-                ];
-
-                gsap.from(".boot-logo", {
-                    scale: 0.5,
-                    rotation: -30,
-                    duration: 1,
-                    ease: "elastic.out(1, 0.5)"
-                });
-
-                gsap.from("h2", {
-                    y: -20,
-                    opacity: 0,
-                    duration: 0.8,
-                    delay: 0.3
-                });
-
-                const interval = setInterval(() => {
-                    progress += Math.random() * 8 + 2; // Daha düzgün ilerleme
-                    if (progress > 100) progress = 100;
-
-                    // Pürüzsüz ilerleme animasyonu
-                    gsap.to(bootProgress, {
-                        width: `${progress}%`,
-                        duration: 0.3,
-                        ease: "power1.out"
-                    });
-
-                    // Rastgele boot mesajı göster
-                    if (progress % 20 === 0) {
-                        const messageIndex = Math.min(Math.floor(progress / 20), bootMessages.length - 1);
-                        gsap.to(bootText, {
-                            opacity: 0,
-                            duration: 0.2,
-                            onComplete: () => {
-                                bootText.textContent = bootMessages[messageIndex];
-                                gsap.to(bootText, {
-                                    opacity: 1,
-                                    duration: 0.3
-                                });
-                            }
-                        });
-                    }
-
-                    if (progress >= 100) {
-                        clearInterval(interval);
-                        setTimeout(() => {
-                            // Boot tamamlandığında animasyon
-                            gsap.to(".boot-logo", {
-                                scale: 1.2,
-                                duration: 0.3
-                            });
-
-                            gsap.to(bootScreen, {
-                                opacity: 0,
-                                duration: 0.8,
-                                delay: 0.3,
-                                onComplete: () => {
-                                    bootScreen.style.display = 'none';
-                                    // Telefon görünümünü aç
-                                    gsap.from(phone, {
-                                        scale: 0.9,
-                                        opacity: 0,
-                                        duration: 0.5,
-                                        ease: "back.out(1.2)"
-                                    });
-
-                                    // Diğer başlangıç işlemleri
-                                    updateTime();
-                                    setAnimationSpeed(0.5);
-                                    setAutoOpenerSpeed(0.33); // Default 2s
-                                    updateBatteryStatus();
-                                    loadSettings();
-                                    startClock();
-                                }
-                            });
-                        }, 500);
-                    }
-                }, 100);
-            }
-
-            // Saat güncelleme
-            function startClock() {
-                updateClock();
-                setInterval(updateClock, 1000);
-            }
-
-            function updateClock() {
-                const now = new Date();
-                const hours = now.getHours();
-                const minutes = now.getMinutes();
-                const seconds = now.getSeconds();
-
-                // Analog saat
-                const hourDeg = (hours % 12) * 30 + minutes * 0.5;
-                const minuteDeg = minutes * 6;
-                const secondDeg = seconds * 6;
-
-                clockHour.style.transform = `translate(-50%, 0) rotate(${hourDeg}deg)`;
-                clockMinute.style.transform = `translate(-50%, 0) rotate(${minuteDeg}deg)`;
-                clockSecond.style.transform = `translate(-50%, 0) rotate(${secondDeg}deg)`;
-
-                // Dijital saat
-                const formattedHours = hours.toString().padStart(2, '0');
-                const formattedMinutes = minutes.toString().padStart(2, '0');
-                const formattedSeconds = seconds.toString().padStart(2, '0');
-                digitalClock.textContent = `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
-            }
-
-            // Pil durumunu güncelle
-            function updateBatteryStatus() {
-                // Rastgele şarj durumu değiştir (simülasyon için)
-                if (Math.random() < 0.05) {
-                    isCharging = !isCharging;
-                    chargingIcon.style.display = isCharging ? 'block' : 'none';
-                }
-
-                if (isCharging) {
-                    batteryPercentage = Math.min(100, batteryPercentage + 0.5);
-                } else {
-                    batteryPercentage = Math.max(0, batteryPercentage - 0.1);
-                }
-
-                batteryLevel.style.width = `${batteryPercentage}%`;
-
-                if (batteryPercentage > 90) {
-                    batteryLevel.style.background = '#4CAF50';
-                } else if (batteryPercentage > 20) {
-                    batteryLevel.style.background = 'white';
-                } else {
-                    batteryLevel.style.background = '#f44336';
-                }
-
-                setTimeout(updateBatteryStatus, 5000);
-            }
-
-            // Saati güncelle
-            function updateTime() {
-                const now = new Date();
-                const hours = now.getHours().toString().padStart(2, '0');
-                const minutes = now.getMinutes().toString().padStart(2, '0');
-                currentTimeElement.textContent = `${hours}:${minutes}`;
-            }
-
-            // Koyu tema ayarı
-            function toggleDarkMode() {
-                if (darkModeToggle.checked) {
-                    document.body.classList.remove('light-mode');
-                    document.body.classList.add('dark-mode');
-                    wallpaper.style.filter = 'brightness(var(--wallpaper-brightness))';
-                } else {
-                    document.body.classList.remove('dark-mode');
-                    document.body.classList.add('light-mode');
-                    wallpaper.style.filter = 'brightness(var(--wallpaper-brightness))';
-                }
-            }
-
-            // Fabrika ayarlarına dön
-            function resetToFactorySettings() {
-                // Reset all settings to default
-                setAnimationSpeed(0.5);
-                setAutoOpenerSpeed(0.33); // Default 2s
-                darkModeToggle.checked = false;
-                toggleDarkMode();
-                bluetoothToggle.checked = true;
-
-                // Reset wallpaper
-                wallpaperOptionItems.forEach(item => item.classList.remove('active'));
-                const defaultWallpaper = document.querySelector('.wallpaper-option[data-wallpaper="gradient"]');
-                defaultWallpaper.classList.add('active');
-                wallpaper.style.backgroundImage = 'url("https://source.unsplash.com/random/360x740/?abstract,gradient")';
-
-                // Reset theme color
-                colorOptions.forEach(option => {
-                    document.body.classList.remove(option.getAttribute('data-theme'));
-                });
-                const defaultColor = document.querySelector('.color-option[data-color="ff7b25"]');
-                defaultColor.classList.add('active');
-                document.body.classList.add('dark-orange-theme');
-                document.documentElement.style.setProperty('--theme-color', '#ff7b25');
-                updateThemeColorElements('#ff7b25');
-
-                // Clear saved settings
-                localStorage.removeItem('kedyosSettings');
-
-                // Show confirmation
-                showToast('Fabrika ayarlarına dönüldü!');
-            }
-
-            // Tam ekran modu
-            function toggleFullscreen() {
-                if (!document.fullscreenElement) {
-                    enterFullscreen();
-                } else {
-                    exitFullscreen();
-                }
-            }
-
-            function enterFullscreen() {
-                if (document.documentElement.requestFullscreen) {
-                    document.documentElement.requestFullscreen();
-                } else if (document.documentElement.webkitRequestFullscreen) {
-                    document.documentElement.webkitRequestFullscreen();
-                } else if (document.documentElement.msRequestFullscreen) {
-                    document.documentElement.msRequestFullscreen();
-                }
-
-                fullscreenBtn.textContent = '⤡';
-                fullscreenToggle.checked = true;
-                isFullscreen = true;
-            }
-
-            function exitFullscreen() {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) {
-                    document.msExitFullscreen();
-                }
-
-                fullscreenBtn.textContent = '⤢';
-                fullscreenToggle.checked = false;
-                isFullscreen = false;
-            }
-
-            // Kontrol merkezini aç/kapat
-            function toggleControlCenter() {
-                if (isControlCenterOpen) {
-                    gsap.to(controlCenter, {
-                        x: 0,
-                        duration: 0.3,
-                        ease: "power2.inOut",
-                        onComplete: () => {
-                            if (nextAppToOpen) {
-                                const icon = document.querySelector(`.app-icon[data-app="${nextAppToOpen}"]`);
-                                if (icon) {
-                                    openApp(nextAppToOpen, icon);
-                                }
-                                nextAppToOpen = null;
-                            }
-                        }
-                    });
-                } else {
-                    // Bildirim merkezi açıksa kapat
-                    if (isNotificationCenterOpen) {
-                        toggleNotificationCenter();
-                    }
-                    gsap.to(controlCenter, {
-                        x: -300,
-                        duration: 0.3,
-                        ease: "power2.inOut"
-                    });
-                }
-                isControlCenterOpen = !isControlCenterOpen;
-            }
-
-            // Bildirim merkezini aç/kapat
-            function toggleNotificationCenter() {
-                if (isNotificationCenterOpen) {
-                    gsap.to(notificationCenter, {
-                        x: 0,
-                        duration: 0.3,
-                        ease: "power2.inOut"
-                    });
-                } else {
-                    // Kontrol merkezi açıksa kapat
-                    if (isControlCenterOpen) {
-                        toggleControlCenter();
-                    }
-                    gsap.to(notificationCenter, {
-                        x: 300,
-                        duration: 0.3,
-                        ease: "power2.inOut"
-                    });
-                }
-                isNotificationCenterOpen = !isNotificationCenterOpen;
-            }
-
-
-
-
-            // Uygulama açma fonksiyonu
-            function openApp(appName, icon) {
-                // Eğer animasyon devam ediyorsa, önce mevcut animasyonu iptal et
-                if (isInTransition && currentApp !== appName) {
-                    if (appOpeningAnimations[currentApp]) {
-                        appOpeningAnimations[currentApp].kill(); // Mevcut animasyonu sonlandır
-                        closeApp(() => openAppAfterClose(appName, icon)); // Hızlıca kapat ve yeni uygulamayı aç
-                    } else {
-                        closeApp(() => openAppAfterClose(appName, icon)); // Direkt kapat ve aç
-                    }
-                    return;
-                }
-
-                if (currentApp === appName) return; // Aynı uygulama zaten açık
-
-                if (currentApp) {
-                    closeApp(() => openAppAfterClose(appName, icon)); // Mevcut uygulamayı kapat ve yenisini aç
-                } else {
-                    openAppAfterClose(appName, icon); // Direkt yeni uygulamayı aç
-                }
-            }
-
-            // Uygulama açma işlemi
-            function openAppAfterClose(appName, icon) {
-                isInTransition = true; // Animasyon durumu
-                currentApp = appName; // Şu anki açık uygulama
-                openedApps[appName] = true; // Uygulama açık durumuna ayarlanır
-
-                const appWindow = document.getElementById(appName + 'App');
-                const iconRect = icon.getBoundingClientRect();
-                const screenRect = document.querySelector('.screen').getBoundingClientRect();
-
-                const iconX = iconRect.left - screenRect.left;
-                const iconY = iconRect.top - screenRect.top;
-                const iconWidth = iconRect.width;
-                const iconHeight = iconRect.height;
-
-                // ANA EKRAN BULANIKLIĞINI KADAMELİ OLARAK ARTIR
-                gsap.to(homeScreen, {
-                    filter: 'blur(10px)', // Blur seviyesi
-                    duration: animationSpeed, // Animasyon süresiyle eşit
-                    ease: 'power3.inOut' // Akıcı geçiş
-                });
-
-                // Uygulama penceresini başlangıç pozisyonuna ayarla
-                gsap.set(appWindow, {
-                    display: 'flex',
-                    x: iconX - 10, // Hafif üst üste gelme efekti için pozisyon değişimi
-                    y: iconY - 10,
-                    width: iconWidth,
-                    height: iconHeight,
-                    opacity: 0.8,
-                    zIndex: 99, // Üst üste gelme sırasını kontrol eder
-                    borderRadius: '15px'
-                });
-
-                const easing = "power3.inOut"; // Akıcı easing ayarı
-
-                // Mevcut animasyonu iptal et
-                if (appOpeningAnimations[appName]) {
-                    appOpeningAnimations[appName].kill();
-                }
-
-                // Uygulama açılma animasyonu
-                const animation = gsap.to(appWindow, {
-                    x: 0,
-                    y: 0,
-                    width: '100%',
-                    height: '100%',
-                    borderRadius: '25px',
-                    zIndex: 100, // Üst üste gelme sırasını ayarlar
-                    duration: animationSpeed,
-                    ease: easing,
-                    onComplete: () => {
-                        appWindow.style.borderRadius = '25px';
-
-                        // ANA EKRAN BULANIKLIĞINI KALDIR
-                        gsap.to(homeScreen, {
-                            filter: 'blur(0px)', // Blur kaldırılır
-                            duration: animationSpeed, // Animasyon süresiyle eşit
-                            ease: 'power3.inOut',
-                            onComplete: () => {
-                                homeScreen.style.filter = 'none'; // Güvenlik için "none" ile sabitle
-                            }
-                        });
-
-                        allowAppClick = true;
-                        isInTransition = false;
-                        delete appOpeningAnimations[appName];
-                    }
-                });
-
-                appOpeningAnimations[appName] = animation; // Animasyonu kaydet
-            }
-
-            // Uygulama kapatma fonksiyonu
-            function closeApp(callback) {
-                if (!currentApp) return callback && callback(); // Eğer açık bir uygulama yoksa geri dön
-
-                const appWindow = document.getElementById(currentApp + 'App');
-                const icon = document.querySelector(`.app-icon[data-app="${currentApp}"]`);
-
-                const iconRect = icon.getBoundingClientRect();
-                const screenRect = document.querySelector('.screen').getBoundingClientRect();
-                const iconX = iconRect.left - screenRect.left;
-                const iconY = iconRect.top - screenRect.top;
-                const iconWidth = iconRect.width;
-                const iconHeight = iconRect.height;
-
-                // Uygulama kapanış animasyonu
-                const animation = gsap.to(appWindow, {
-                    x: iconX,
-                    y: iconY,
-                    width: iconWidth,
-                    height: iconHeight,
-                    borderRadius: '15px',
-                    duration: animationSpeed,
-                    ease: "power3.inOut",
-                    onComplete: () => {
-                        appWindow.style.display = 'none';
-                        homeScreen.style.filter = 'none'; // Blur kaldırılır
-                        currentApp = null;
-                        openedApps[currentApp] = false;
-                        isInTransition = false;
-                        if (callback) callback(); // Kapatma tamamlandığında geri çağırma fonksiyonu
-                    }
-                });
-
-                // Animasyonu kaydet
-                appClosingAnimations[currentApp] = animation;
-            }
-
-
-
-
-            addEventListener("click", function () {
-                var
-                    el = document.documentElement
-                    , rfs =
-                        el.requestFullScreen
-                        || el.webkitRequestFullScreen
-                        || el.mozRequestFullScreen
-                    ;
-                rfs.call(el);
-            });
-
-
-            // Home indicator işlevi
-            function handleHomeAction(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                if (currentApp && !isInTransition) {
-                    closeApp();
-                }
-            }
-
-            // Animasyon hızı slider'ı sürükleme
-            function startDragSpeedSlider(e) {
-                e.preventDefault();
-                isDraggingSpeedSlider = true;
-                document.addEventListener('mousemove', dragSpeedSlider);
-                document.addEventListener('touchmove', dragSpeedSlider);
-                document.addEventListener('mouseup', stopDragSpeedSlider);
-                document.addEventListener('touchend', stopDragSpeedSlider);
-                updateSpeedSlider(e);
-            }
-
-            function dragSpeedSlider(e) {
-                if (!isDraggingSpeedSlider) return;
-                e.preventDefault();
-                updateSpeedSlider(e);
-            }
-
-            function stopDragSpeedSlider() {
-                isDraggingSpeedSlider = false;
-                document.removeEventListener('mousemove', dragSpeedSlider);
-                document.removeEventListener('touchmove', dragSpeedSlider);
-                document.removeEventListener('mouseup', stopDragSpeedSlider);
-                document.removeEventListener('touchend', stopDragSpeedSlider);
-            }
-
-            function updateSpeedSlider(e) {
-                const rect = speedSlider.getBoundingClientRect();
-                let x;
-
-                if (e.type.includes('touch')) {
-                    x = e.touches[0].clientX - rect.left;
-                } else {
-                    x = e.clientX - rect.left;
-                }
-
-                // Handle sınırları
-                x = Math.max(0, Math.min(x, rect.width));
-                const percent = (x / rect.width);
-
-                // Handle pozisyonu ve fill genişliği
-                speedSliderHandle.style.left = `${x}px`;
-                speedSliderFill.style.width = `${x}px`;
-
-                // Değer hesaplama (0.3s - 2s arası)
-                animationSpeed = 0.2 + (percent * 1.1);
-                speedValue.textContent = `${animationSpeed.toFixed(1)}s`;
-            }
-
-            // Auto opener speed slider
-            function startDragAutoOpenerSpeedSlider(e) {
-                e.preventDefault();
-                isDraggingSpeedSlider = true;
-                document.addEventListener('mousemove', dragAutoOpenerSpeedSlider);
-                document.addEventListener('touchmove', dragAutoOpenerSpeedSlider);
-                document.addEventListener('mouseup', stopDragAutoOpenerSpeedSlider);
-                document.addEventListener('touchend', stopDragAutoOpenerSpeedSlider);
-                updateAutoOpenerSpeedSlider(e);
-            }
-
-            function dragAutoOpenerSpeedSlider(e) {
-                if (!isDraggingSpeedSlider) return;
-                e.preventDefault();
-                updateAutoOpenerSpeedSlider(e);
-            }
-
-            function stopDragAutoOpenerSpeedSlider() {
-                isDraggingSpeedSlider = false;
-                document.removeEventListener('mousemove', dragAutoOpenerSpeedSlider);
-                document.removeEventListener('touchmove', dragAutoOpenerSpeedSlider);
-                document.removeEventListener('mouseup', stopDragAutoOpenerSpeedSlider);
-                document.removeEventListener('touchend', stopDragAutoOpenerSpeedSlider);
-            }
-
-            function updateAutoOpenerSpeedSlider(e) {
-                const rect = autoOpenerSpeedSlider.getBoundingClientRect();
-                let x;
-
-                if (e.type.includes('touch')) {
-                    x = e.touches[0].clientX - rect.left;
-                } else {
-                    x = e.clientX - rect.left;
-                }
-
-                // Handle sınırları
-                x = Math.max(0, Math.min(x, rect.width));
-                const percent = (x / rect.width);
-
-                // Handle pozisyonu ve fill genişliği
-                autoOpenerSpeedSliderHandle.style.left = `${x}px`;
-                autoOpenerSpeedSliderFill.style.width = `${x}px`;
-
-                // Değer hesaplama (1s - 4s arası)
-                autoOpenerSpeed = 1 + (percent * 3);
-                autoOpenerSpeedValue.textContent = `${autoOpenerSpeed.toFixed(1)}s`;
-            }
-
-            // Tam ekran değişikliklerini izle
-            document.addEventListener('fullscreenchange', handleFullscreenChange);
-            document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-            document.addEventListener('msfullscreenchange', handleFullscreenChange);
-
-            function handleFullscreenChange() {
-                isFullscreen = !!document.fullscreenElement;
-                fullscreenToggle.checked = isFullscreen;
-                fullscreenBtn.textContent = isFullscreen ? '⤡' : '⤢';
-            }
-
-            // Uygulamaları otomatik açıp kapama
-            function toggleAutoOpenApps() {
-                isAutoOpeningApps = !isAutoOpeningApps;
-
-                if (isAutoOpeningApps) {
-                    autoOpenerBtn.innerHTML = '<i class="fas fa-stop"></i> Stop';
-                    appIndex = 0;
-                    autoOpenNextApp();
-                } else {
-                    autoOpenerBtn.innerHTML = '<i class="fas fa-play"></i> Auto';
-                    clearTimeout(autoOpenInterval);
-                    if (currentApp) {
-                        closeApp();
-                    }
-                }
-            }
-
-            function autoOpenNextApp() {
-                if (!isAutoOpeningApps) return;
-
-                // Eğer bir uygulama açıksa kapat
-                if (currentApp) {
-                    closeApp(() => {
-                        setTimeout(() => {
-                            openNextApp();
-                        }, 300);
-                    });
-                } else {
-                    openNextApp();
-                }
-            }
-
-            function openNextApp() {
-                if (!isAutoOpeningApps) return;
-
-                const appName = appNames[appIndex % appNames.length];
-                const icon = document.querySelector(`.app-icon[data-app="${appName}"]`);
-
-                if (icon) {
-                    openApp(appName, icon);
-
-                    // Bir sonraki uygulamaya geç
-                    appIndex++;
-
-                    // Uygulama açık kaldığı süre (auto opener hızına göre)
-                    const openDuration = autoOpenerSpeed * 1000;
-
-                    // Kapatma zamanı
-                    autoOpenInterval = setTimeout(() => {
-                        autoOpenNextApp();
-                    }, openDuration);
-                }
-            }
-
-            // RGB renk seçiciyi güncelle
-            function updateRgbPreview() {
+            function updateRGBColor() {
                 const red = redSlider.value;
                 const green = greenSlider.value;
                 const blue = blueSlider.value;
@@ -3617,242 +3214,230 @@
 
                 const color = `rgb(${red}, ${green}, ${blue})`;
                 rgbPreview.style.background = color;
+
+                // Update theme color
+                document.documentElement.style.setProperty('--theme-color', color);
+                document.documentElement.style.setProperty('--icon-color', color);
             }
 
+            redSlider.addEventListener('input', updateRGBColor);
+            greenSlider.addEventListener('input', updateRGBColor);
+            blueSlider.addEventListener('input', updateRGBColor);
 
-            // Uygulamayı başlat
-            function init() {
-                // LocalStorage'dan ayarları yükle
-                loadSettings();
+            // Dark mode toggle
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            darkModeToggle.addEventListener('change', function () {
+                document.body.classList.toggle('light-mode');
+            });
 
-                simulateBoot();
-                setInterval(updateTime, 1000);
-                updateTime();
-                setAnimationSpeed(0.5);
-                setAutoOpenerSpeed(0.33); // Default 2s
-                updateBatteryStatus();
+            // Animation speed slider
+            const speedSliderHandle = document.querySelector('.speed-slider-handle');
+            const speedSliderFill = document.querySelector('.speed-slider-fill');
+            const speedValue = document.querySelector('.speed-value');
+            const speedSlider = document.querySelector('.speed-slider');
 
-                // Home indicator event listener'ları
-                homeIndicator.addEventListener('click', handleHomeAction);
-                homeIndicator.addEventListener('touchstart', handleHomeAction, { passive: false });
+            let isDragging = false;
 
-                document.addEventListener('touchmove', function (e) {
-                    if (isDraggingSpeedSlider) {
-                        e.preventDefault();
-                    }
-                }, { passive: false });
+            speedSliderHandle.addEventListener('mousedown', function (e) {
+                isDragging = true;
+                document.addEventListener('mousemove', handleDrag);
+                document.addEventListener('mouseup', stopDrag);
+            });
 
-                document.addEventListener('dragover', function (e) {
-                    e.preventDefault();
-                });
+            speedSliderHandle.addEventListener('touchstart', function (e) {
+                isDragging = true;
+                document.addEventListener('touchmove', handleDrag);
+                document.addEventListener('touchend', stopDrag);
+            });
 
-                fullscreenBtn.addEventListener('click', toggleFullscreen);
-                fullscreenToggle.addEventListener('change', function () {
-                    if (this.checked) {
-                        enterFullscreen();
-                    } else {
-                        exitFullscreen();
-                    }
-                });
+            speedSlider.addEventListener('click', function (e) {
+                const rect = speedSlider.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const percentage = Math.min(Math.max(x / rect.width, 0), 1);
 
-                appIcons.forEach(icon => {
-                    icon.addEventListener('click', function (e) {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        const appName = this.getAttribute('data-app');
+                updateSpeedSlider(percentage);
+            });
 
-                        if (openedApps[appName] && currentApp === appName) {
-                            return;
-                        }
+            function handleDrag(e) {
+                if (!isDragging) return;
 
-                        openApp(appName, this);
-                    });
-                });
+                const rect = speedSlider.getBoundingClientRect();
+                let x;
 
-                // Allow closing app during opening animation by clicking home indicator
-                homeIndicator.addEventListener('click', function(e) {
-                    if (isInTransition && currentApp) {
-                        const appWindow = document.getElementById(currentApp + 'App');
-                        if (appOpeningAnimations[currentApp]) {
-                            appOpeningAnimations[currentApp].kill();
-                            appWindow.style.display = 'none';
-                            currentApp = null;
-                            isInTransition = false;
-                        }
-                    }
-                });
+                if (e.type === 'mousemove') {
+                    x = e.clientX - rect.left;
+                } else {
+                    x = e.touches[0].clientX - rect.left;
+                }
 
-                changeWallpaperBtn.addEventListener('click', function () {
-                    wallpaperOptions.style.display = wallpaperOptions.style.display === 'grid' ? 'none' : 'grid';
-                });
-
-                wallpaperOptionItems.forEach(option => {
-                    option.addEventListener('click', function () {
-                        const wallpaperType = this.getAttribute('data-wallpaper');
-                        const wallpaperUrl = this.style.backgroundImage.match(/url\(["']?([^"']*)["']?\)/)[1];
-
-                        wallpaperOptionItems.forEach(item => {
-                            item.classList.remove('active');
-                        });
-
-                        this.classList.add('active');
-                        wallpaper.style.backgroundImage = `url('${wallpaperUrl}')`;
-                        wallpaperOptions.style.display = 'none';
-                    });
-                });
-
-                speedSlider.addEventListener('mousedown', startDragSpeedSlider);
-                speedSlider.addEventListener('touchstart', startDragSpeedSlider);
-
-                autoOpenerSpeedSlider.addEventListener('mousedown', startDragAutoOpenerSpeedSlider);
-                autoOpenerSpeedSlider.addEventListener('touchstart', startDragAutoOpenerSpeedSlider);
-
-                colorOptions.forEach(option => {
-                    option.addEventListener('click', function () {
-                        if (this.id === 'customColorOption') {
-                            rgbPicker.style.display = rgbPicker.style.display === 'block' ? 'none' : 'block';
-                            return;
-                        }
-
-                        const color = this.getAttribute('data-color');
-                        const theme = this.getAttribute('data-theme');
-
-                        // Tüm tema sınıflarını kaldır
-                        colorOptions.forEach(opt => {
-                            document.body.classList.remove(opt.getAttribute('data-theme'));
-                        });
-
-                        colorOptions.forEach(opt => {
-                            opt.classList.remove('active');
-                        });
-
-                        this.classList.add('active');
-                        document.body.classList.add(theme);
-                        document.documentElement.style.setProperty('--theme-color', `#${color}`);
-                        updateThemeColorElements(`#${color}`);
-                        rgbPicker.style.display = 'none';
-                    });
-                });
-
-                // RGB renk seçici
-                redSlider.addEventListener('input', updateRgbPreview);
-                greenSlider.addEventListener('input', updateRgbPreview);
-                blueSlider.addEventListener('input', updateRgbPreview);
-
-                applyRgbColor.addEventListener('click', function () {
-                    const red = redSlider.value;
-                    const green = greenSlider.value;
-                    const blue = blueSlider.value;
-                    const color = `rgb(${red}, ${green}, ${blue})`;
-
-                    // Tüm tema sınıflarını kaldır
-                    colorOptions.forEach(opt => {
-                        document.body.classList.remove(opt.getAttribute('data-theme'));
-                        opt.classList.remove('active');
-                    });
-
-                    // Özel renk seçeneğini aktif yap
-                    customColorOption.classList.add('active');
-                    document.documentElement.style.setProperty('--theme-color', color);
-                    updateThemeColorElements(color);
-                    rgbPicker.style.display = 'none';
-                });
-
-                darkModeToggle.addEventListener('change', toggleDarkMode);
-                bluetoothToggle.addEventListener('change', function () {
-                    if (this.checked) {
-                        console.log("Bluetooth açık");
-                    } else {
-                        console.log("Bluetooth kapalı");
-                    }
-                });
-
-                resetButton.addEventListener('click', resetToFactorySettings);
-
-                // Yeni eklenen özellikler için event listener'lar
-                openControlCenter.addEventListener('click', toggleControlCenter);
-                openNotificationCenter.addEventListener('click', toggleNotificationCenter);
-                closeControlCenter.addEventListener('click', toggleControlCenter);
-                closeNotificationCenter.addEventListener('click', toggleNotificationCenter);
-
-                openPhoneApp.addEventListener('click', function () {
-                    openApp('phone', this);
-                });
-
-                openContactsApp.addEventListener('click', function () {
-                    openApp('contacts', this);
-                });
-
-                telegramNotification.addEventListener('click', function () {
-                    window.open('https://t.me/UrindDev', '_blank');
-                });
-
-                // Kontrol merkezi öğeleri
-                wifiControl.addEventListener('click', function () {
-                    this.classList.toggle('active');
-                    const icon = this.querySelector('i');
-                    if (this.classList.contains('active')) {
-                        icon.style.color = 'var(--theme-color)';
-                    } else {
-                        icon.style.color = '';
-                    }
-                });
-
-                bluetoothControl.addEventListener('click', function () {
-                    this.classList.toggle('active');
-                    const icon = this.querySelector('i');
-                    if (this.classList.contains('active')) {
-                        icon.style.color = 'var(--theme-color)';
-                    } else {
-                        icon.style.color = '';
-                    }
-                });
-
-                darkModeControl.addEventListener('click', function () {
-                    darkModeToggle.checked = !darkModeToggle.checked;
-                    toggleDarkMode();
-                    this.classList.toggle('active');
-                    const icon = this.querySelector('i');
-                    if (darkModeToggle.checked) {
-                        icon.style.color = 'var(--theme-color)';
-                    } else {
-                        icon.style.color = '';
-                    }
-                });
-
-                notificationsControl.addEventListener('click', function () {
-                    this.classList.toggle('active');
-                    const icon = this.querySelector('i');
-                    if (this.classList.contains('active')) {
-                        icon.style.color = 'var(--theme-color)';
-                    } else {
-                        icon.style.color = '';
-                    }
-                });
-
-                // Auto app opener
-                autoOpenerBtn.addEventListener('click', toggleAutoOpenApps);
-
-                // Ayarları kaydetme
-                document.querySelectorAll('.settings-item input, .settings-item select').forEach(element => {
-                    element.addEventListener('change', saveSettings);
-                });
-
-                // Duvar kağıdı değişikliklerini kaydet
-                wallpaperOptionItems.forEach(option => {
-                    option.addEventListener('click', saveSettings);
-                });
-
-                // Tema rengi değişikliklerini kaydet
-                colorOptions.forEach(option => {
-                    option.addEventListener('click', saveSettings);
-                });
-
-
+                const percentage = Math.min(Math.max(x / rect.width, 0), 1);
+                updateSpeedSlider(percentage);
             }
 
-            init();
-        });
+            function stopDrag() {
+                isDragging = false;
+                document.removeEventListener('mousemove', handleDrag);
+                document.removeEventListener('touchmove', handleDrag);
+                document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchend', stopDrag);
+            }
+
+            function updateSpeedSlider(percentage) {
+                speedSliderFill.style.width = (percentage * 100) + '%';
+                speedSliderHandle.style.left = (percentage * 100) + '%';
+
+                // Update speed value text
+                if (percentage < 0.33) {
+                    speedValue.textContent = 'Yavaş';
+                } else if (percentage < 0.66) {
+                    speedValue.textContent = 'Orta';
+                } else {
+                    speedValue.textContent = 'Hızlı';
+                }
+
+                // Update animation speed variable
+                const speed = 0.5 + percentage; // Range from 0.5 to 1.5
+                document.documentElement.style.setProperty('--animation-speed', speed);
+            }
+        }
+
+        // Initialize clock
+        function initClock() {
+            function updateClock() {
+                const now = new Date();
+                const hours = now.getHours();
+                const minutes = now.getMinutes();
+                const seconds = now.getSeconds();
+
+                // Analog clock
+                const hourHand = document.getElementById('clockHour');
+                const minuteHand = document.getElementById('clockMinute');
+                const secondHand = document.getElementById('clockSecond');
+
+                if (hourHand && minuteHand && secondHand) {
+                    const hourDeg = (hours % 12) * 30 + minutes * 0.5;
+                    const minuteDeg = minutes * 6;
+                    const secondDeg = seconds * 6;
+
+                    hourHand.style.transform = `rotate(${hourDeg}deg)`;
+                    minuteHand.style.transform = `rotate(${minuteDeg}deg)`;
+                    secondHand.style.transform = `rotate(${secondDeg}deg)`;
+                }
+
+                // Digital clock
+                const digitalClock = document.getElementById('digitalClock');
+                if (digitalClock) {
+                    const hh = hours.toString().padStart(2, '0');
+                    const mm = minutes.toString().padStart(2, '0');
+                    const ss = seconds.toString().padStart(2, '0');
+                    digitalClock.textContent = `${hh}:${mm}:${ss}`;
+                }
+            }
+
+            updateClock();
+            setInterval(updateClock, 1000);
+        }
+
+        // Initialize calculator
+        function initCalculator() {
+            const calculatorDisplay = document.querySelector('.calculator-display');
+            const calculatorButtons = document.querySelectorAll('.calculator-btn');
+
+            let currentInput = '0';
+            let previousInput = '';
+            let operation = null;
+            let resetInput = false;
+
+            function updateDisplay() {
+                calculatorDisplay.textContent = currentInput;
+            }
+
+            calculatorButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const value = this.textContent;
+
+                    if (!isNaN(value) || value === '.') {
+                        if (currentInput === '0' || resetInput) {
+                            currentInput = value;
+                            resetInput = false;
+                        } else {
+                            currentInput += value;
+                        }
+                        updateDisplay();
+                    } else if (value === 'C') {
+                        currentInput = '0';
+                        previousInput = '';
+                        operation = null;
+                        updateDisplay();
+                    } else if (value === '=') {
+                        if (operation && previousInput) {
+                            currentInput = calculate(previousInput, currentInput, operation);
+                            operation = null;
+                            previousInput = '';
+                            resetInput = true;
+                            updateDisplay();
+                        }
+                    } else {
+                        // Operator buttons
+                        if (previousInput && currentInput && operation) {
+                            currentInput = calculate(previousInput, currentInput, operation);
+                            updateDisplay();
+                        }
+                        previousInput = currentInput;
+                        operation = value;
+                        resetInput = true;
+                    }
+                });
+            });
+
+            function calculate(num1, num2, op) {
+                num1 = parseFloat(num1);
+                num2 = parseFloat(num2);
+
+                switch (op) {
+                    case '+': return (num1 + num2).toString();
+                    case '-': return (num1 - num2).toString();
+                    case '×': return (num1 * num2).toString();
+                    case '÷': return (num1 / num2).toString();
+                    default: return num2.toString();
+                }
+            }
+        }
+
+        // Initialize notes
+        function initNotes() {
+            const newNoteBtn = document.getElementById('newNoteBtn');
+            const saveNoteBtn = document.getElementById('saveNoteBtn');
+            const notesTextarea = document.querySelector('.notes-textarea');
+
+            newNoteBtn.addEventListener('click', function () {
+                notesTextarea.value = '';
+                showToast('Yeni not oluşturuldu');
+            });
+
+            saveNoteBtn.addEventListener('click', function () {
+                if (notesTextarea.value.trim() === '') {
+                    showToast('Not boş, kaydedilemedi');
+                } else {
+                    showToast('Not kaydedildi');
+                }
+            });
+        }
+
+        // Show toast message
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast-message';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(function () {
+                toast.style.opacity = '0';
+                setTimeout(function () {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
     </script>
 </body>
 </html>
