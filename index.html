@@ -250,7 +250,7 @@
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
             transition: transform 0.3s;
             transform: scale(var(--frame-scale));
-            overflow: hidden;
+            overflow: hidden !important;
             display: none;
         }
 
@@ -2278,6 +2278,7 @@
                     </div>
                 </div>
 
+
                 <!-- Settings App -->
                 <div class="app-window" id="settingsApp">
                     <div class="app-backdrop"></div>
@@ -2322,35 +2323,6 @@
                                 <div class="color-option amber-theme" style="background: #FFC107;"></div>
                             </div>
 
-                            <div class="settings-item" id="rgbColorSettings">
-                                <div class="settings-title">Özel Renk</div>
-                                <div class="settings-value">RGB Ayarla</div>
-                            </div>
-                            <div class="rgb-picker" id="rgbPicker">
-                                <div class="rgb-preview"></div>
-                                <div class="rgb-slider-container">
-                                    <div class="rgb-slider-label">
-                                        <span>Kırmızı</span>
-                                        <span id="redValue">255</span>
-                                    </div>
-                                    <input type="range" min="0" max="255" value="255" class="rgb-slider" id="redSlider">
-                                </div>
-                                <div class="rgb-slider-container">
-                                    <div class="rgb-slider-label">
-                                        <span>Yeşil</span>
-                                        <span id="greenValue">123</span>
-                                    </div>
-                                    <input type="range" min="0" max="255" value="123" class="rgb-slider" id="greenSlider">
-                                </div>
-                                <div class="rgb-slider-container">
-                                    <div class="rgb-slider-label">
-                                        <span>Mavi</span>
-                                        <span id="blueValue">37</span>
-                                    </div>
-                                    <input type="range" min="0" max="255" value="37" class="rgb-slider" id="blueSlider">
-                                </div>
-                            </div>
-
                             <div class="speed-slider-container">
                                 <div class="slider-label">
                                     <span>Animasyon Hızı</span>
@@ -2361,20 +2333,6 @@
                                     <input type="range" min="0.3" max="1.5" step="0.1" value="0.8" class="slider" id="speedSlider">
                                     <span>Hızlı</span>
                                 </div>
-                            </div>
-
-                            <div class="settings-item">
-                                <div class="settings-title">Animasyon Stili</div>
-                                <div class="settings-value">Varsayılan</div>
-                            </div>
-                            <div class="animation-option">
-                                <div class="animation-label">Açılış Animasyonu</div>
-                                <select class="animation-select" id="animationSelect">
-                                    <option>Varsayılan</option>
-                                    <option>OriginOS</option>
-                                    <option>Yayılma</option>
-                                    <option>Hafif</option>
-                                </select>
                             </div>
                         </div>
                     </div>
@@ -2662,8 +2620,6 @@
             setInterval(updateTime, 60000);
             setInterval(updateBattery, 30000);
             initApps();
-            initControlCenter();
-            initNotificationCenter();
             initSettings();
             initClock();
             initCalculator();
@@ -2703,9 +2659,6 @@
             const homeIndicator = document.getElementById('homeIndicator');
             let homeIndicatorCooldown = false;
 
-            // Uygulama ızgarasını 6 sütun yap
-            document.querySelector('.home-screen').style.gridTemplateColumns = 'repeat(6, 1fr)';
-
             appIcons.forEach(icon => {
                 icon.addEventListener('click', function () {
                     if (!allowAppClick || this.classList.contains('disabled')) return;
@@ -2721,46 +2674,17 @@
                 closeAllApps();
                 setTimeout(() => { homeIndicatorCooldown = false; }, 500);
             });
-
-            // Dock ikonları için event listener'lar
-            document.getElementById('openControlCenter').addEventListener('click', () => {
-                document.getElementById('controlCenter').classList.add('active');
-            });
-
-            document.getElementById('openNotificationCenter').addEventListener('click', () => {
-                document.getElementById('notificationCenter').classList.add('active');
-            });
-
-            // Dock'taki telefon uygulaması için özel işlem
-            document.getElementById('openPhoneApp').addEventListener('click', function () {
-                if (currentApp === 'phone') return;
-                if (currentApp) {
-                    closeApp(() => openApp('phone'));
-                } else {
-                    openApp('phone');
-                }
-            });
-
-            document.getElementById('openContactsApp').addEventListener('click', () => openApp('contacts'));
         }
 
         // Uygulama açma fonksiyonu
         function openApp(appName, icon) {
-            if (currentApp === appName) return;
+            if (currentApp === appName || isInTransition) return;
 
             if (icon) {
                 activeIcon = icon;
                 icon.classList.add('disabled');
             }
 
-            if (currentApp) {
-                closeApp(() => openAppAfterClose(appName, icon));
-            } else {
-                openAppAfterClose(appName, icon);
-            }
-        }
-
-        function openAppAfterClose(appName, icon) {
             isInTransition = true;
             allowAppClick = false;
             currentApp = appName;
@@ -2773,7 +2697,12 @@
             // App icon elementini oluştur ve pozisyonlandır
             const appIcon = document.createElement('div');
             appIcon.className = 'app-opening-icon';
-            appIcon.innerHTML = `<i class="${icon.querySelector('i').className}"></i>`;
+            if (icon) {
+                appIcon.innerHTML = `<i class="${icon.querySelector('i').className}"></i>`;
+            } else {
+                // Dock'tan açılıyorsa varsayılan ikon
+                appIcon.innerHTML = `<i class="fas fa-mobile-alt"></i>`;
+            }
             appWindow.appendChild(appIcon);
 
             // İçerik başlangıçta gizli
@@ -2781,13 +2710,22 @@
             appContent.style.opacity = '0';
 
             // Pozisyon hesaplama
-            const iconRect = icon.getBoundingClientRect();
-            const screenRect = screen.getBoundingClientRect();
+            let startX, startY, startWidth, startHeight;
 
-            const startX = iconRect.left - screenRect.left;
-            const startY = iconRect.top - screenRect.top;
-            const startWidth = iconRect.width;
-            const startHeight = iconRect.height;
+            if (icon) {
+                const iconRect = icon.getBoundingClientRect();
+                const screenRect = screen.getBoundingClientRect();
+                startX = iconRect.left - screenRect.left;
+                startY = iconRect.top - screenRect.top;
+                startWidth = iconRect.width;
+                startHeight = iconRect.height;
+            } else {
+                // Dock'tan açılıyorsa ortadan başla
+                startX = screen.offsetWidth / 2 - 25;
+                startY = screen.offsetHeight - 100;
+                startWidth = 50;
+                startHeight = 60;
+            }
 
             // Başlangıç ayarları
             gsap.set(appWindow, {
@@ -2816,6 +2754,7 @@
                     appWindow.style.borderRadius = '25px';
                     isInTransition = false;
                     appOpeningState[appName] = false;
+                    allowAppClick = true;
 
                     // İçerik gösterimi
                     appContent.style.display = 'block';
@@ -2883,11 +2822,32 @@
                 endWidth = iconRect.width;
                 endHeight = iconRect.height;
             } else {
-                endX = screen.offsetWidth / 2 - 30;
+                // Dock'tan açıldıysa ortaya kapat
+                endX = screen.offsetWidth / 2 - 25;
                 endY = screen.offsetHeight - 100;
-                endWidth = 60;
-                endHeight = 80;
+                endWidth = 50;
+                endHeight = 60;
             }
+
+            // App icon elementini oluştur ve pozisyonlandır
+            const appIcon = document.createElement('div');
+            appIcon.className = 'app-opening-icon';
+            if (icon) {
+                appIcon.innerHTML = `<i class="${icon.querySelector('i').className}"></i>`;
+            } else {
+                // Dock'tan açıldıysa varsayılan ikon
+                appIcon.innerHTML = `<i class="fas fa-mobile-alt"></i>`;
+            }
+            appWindow.appendChild(appIcon);
+
+            // Icon animasyon ayarları
+            gsap.set(appIcon, {
+                opacity: 0,
+                scale: 1,
+                x: '50%',
+                y: '50%',
+                transformOrigin: 'center center'
+            });
 
             // Animasyon
             const tl = gsap.timeline({
@@ -2898,6 +2858,9 @@
                     isInTransition = false;
                     appContent.style.display = 'none';
                     appContent.style.opacity = '0';
+
+                    // Icon'u temizle
+                    appIcon.remove();
 
                     if (icon) {
                         icon.classList.remove('disabled');
@@ -2915,6 +2878,19 @@
                 }
             });
 
+            // Icon animasyonu
+            tl.to(appIcon, {
+                opacity: 1,
+                scale: 1,
+                duration: animationSpeed * 0.3
+            })
+                .to(appIcon, {
+                    opacity: 0,
+                    scale: 0.5,
+                    duration: animationSpeed * 0.7
+                }, `>+=${animationSpeed * 0.2}`);
+
+            // Pencere animasyonu
             tl.to(appWindow, {
                 x: endX,
                 y: endY,
@@ -2923,7 +2899,7 @@
                 borderRadius: '14px',
                 duration: animationSpeed,
                 ease: "power2.in"
-            });
+            }, 0);
         }
 
         // Tüm uygulamaları kapatma fonksiyonu
@@ -2936,49 +2912,6 @@
                 }
                 closeApp();
             }
-        }
-
-        // Kontrol merkezi fonksiyonları
-        function initControlCenter() {
-            const controlCenter = document.getElementById('controlCenter');
-            const closeControlCenter = document.getElementById('closeControlCenter');
-
-            closeControlCenter.addEventListener('click', function () {
-                controlCenter.classList.remove('active');
-            });
-
-            // Kontrol öğeleri
-            document.getElementById('wifiControl').addEventListener('click', function () {
-                this.classList.toggle('active');
-            });
-
-            document.getElementById('bluetoothControl').addEventListener('click', function () {
-                this.classList.toggle('active');
-            });
-
-            document.getElementById('darkModeControl').addEventListener('click', function () {
-                document.body.classList.toggle('light-mode');
-                this.classList.toggle('active');
-            });
-
-            document.getElementById('notificationsControl').addEventListener('click', function () {
-                this.classList.toggle('active');
-            });
-        }
-
-        // Bildirim merkezi fonksiyonları
-        function initNotificationCenter() {
-            const notificationCenter = document.getElementById('notificationCenter');
-            const closeNotificationCenter = document.getElementById('closeNotificationCenter');
-
-            closeNotificationCenter.addEventListener('click', function () {
-                notificationCenter.classList.remove('active');
-            });
-
-            document.getElementById('telegramNotification').addEventListener('click', function () {
-                openApp('messages');
-                notificationCenter.classList.remove('active');
-            });
         }
 
         // Ayarlar fonksiyonları
@@ -2996,9 +2929,24 @@
                 option.addEventListener('click', function () {
                     wallpaperOptionsItems.forEach(item => item.classList.remove('active'));
                     this.classList.add('active');
-                    document.getElementById('wallpaper').style.backgroundImage = this.style.backgroundImage;
+                    const bgImage = this.style.backgroundImage;
+                    document.getElementById('wallpaper').style.backgroundImage = bgImage;
+                    // Duvar kağıdını localStorage'e kaydet
+                    localStorage.setItem('wallpaper', bgImage);
                 });
             });
+
+            // Kayıtlı duvar kağıdını yükle
+            const savedWallpaper = localStorage.getItem('wallpaper');
+            if (savedWallpaper) {
+                document.getElementById('wallpaper').style.backgroundImage = savedWallpaper;
+                // Aktif duvar kağıdını işaretle
+                wallpaperOptionsItems.forEach(item => {
+                    if (item.style.backgroundImage === savedWallpaper) {
+                        item.classList.add('active');
+                    }
+                });
+            }
 
             // Tema rengi ayarları
             const themeSettings = document.getElementById('themeSettings');
@@ -3013,36 +2961,76 @@
                 option.addEventListener('click', function () {
                     colorOptionsItems.forEach(item => item.classList.remove('active'));
                     this.classList.add('active');
-                    const themeClass = Array.from(this.classList).find(cls => cls.endsWith('-theme'));
-                    if (themeClass) {
-                        document.body.className = ''; // Tüm class'ları temizle
-                        document.body.classList.add(themeClass);
+
+                    // Tüm tema class'larını kaldır
+                    document.body.className = '';
+
+                    // Yeni tema class'ını ekle
+                    const themeClasses = Array.from(this.classList).filter(cls => cls.endsWith('-theme'));
+                    if (themeClasses.length > 0) {
+                        document.body.classList.add(themeClasses[0]);
+                        // Tema rengini localStorage'e kaydet
+                        localStorage.setItem('theme', themeClasses[0]);
                     }
                 });
             });
 
+            // Kayıtlı temayı yükle
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.body.className = savedTheme;
+                // Aktif temayı işaretle
+                colorOptionsItems.forEach(item => {
+                    if (item.classList.contains(savedTheme)) {
+                        item.classList.add('active');
+                    }
+                });
+            }
 
             // Animasyon hızı ayarı
             const speedSlider = document.getElementById('speedSlider');
             const speedValue = document.getElementById('speedValue');
 
+            // Kayıtlı hız ayarını yükle
+            const savedSpeed = localStorage.getItem('animationSpeed');
+            if (savedSpeed) {
+                speedSlider.value = savedSpeed;
+                speedValue.textContent = getSpeedText(savedSpeed);
+                animationSpeed = parseFloat(savedSpeed);
+                document.documentElement.style.setProperty('--animation-speed', savedSpeed);
+            }
+
             speedSlider.addEventListener('input', function () {
                 const value = parseFloat(this.value);
-                let speedText = '';
-
-                if (value < 0.6) speedText = 'Yavaş';
-                else if (value < 1.0) speedText = 'Orta';
-                else speedText = 'Hızlı';
+                const speedText = getSpeedText(value);
 
                 speedValue.textContent = speedText;
                 animationSpeed = value;
                 document.documentElement.style.setProperty('--animation-speed', value);
+                // Hız ayarını localStorage'e kaydet
+                localStorage.setItem('animationSpeed', value);
             });
+
+            function getSpeedText(value) {
+                if (value < 0.6) return 'Yavaş';
+                if (value < 1.0) return 'Orta';
+                return 'Hızlı';
+            }
 
             // Koyu mod ayarı
             const darkModeToggle = document.getElementById('darkModeToggle');
+
+            // Kayıtlı koyu mod ayarını yükle
+            const darkModeEnabled = localStorage.getItem('darkMode') === 'true';
+            if (darkModeEnabled) {
+                document.body.classList.add('light-mode');
+                darkModeToggle.checked = true;
+            }
+
             darkModeToggle.addEventListener('change', function () {
                 document.body.classList.toggle('light-mode');
+                // Koyu mod ayarını localStorage'e kaydet
+                localStorage.setItem('darkMode', this.checked);
             });
         }
 
@@ -3156,15 +3144,23 @@
             const saveNoteBtn = document.getElementById('saveNoteBtn');
             const notesTextarea = document.querySelector('.notes-textarea');
 
+            // Kayıtlı notu yükle
+            const savedNote = localStorage.getItem('note');
+            if (savedNote) {
+                notesTextarea.value = savedNote;
+            }
+
             newNoteBtn.addEventListener('click', function () {
                 notesTextarea.value = '';
                 showToast('Yeni not oluşturuldu');
+                localStorage.removeItem('note');
             });
 
             saveNoteBtn.addEventListener('click', function () {
                 if (notesTextarea.value.trim() === '') {
                     showToast('Not boş, kaydedilemedi');
                 } else {
+                    localStorage.setItem('note', notesTextarea.value);
                     showToast('Not kaydedildi');
                 }
             });
