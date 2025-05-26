@@ -20,6 +20,8 @@
             --home-indicator-bg: rgba(255,255,255,0.3);
             --wallpaper-brightness: 0.4;
             --notification-color: #ff6b81;
+            --animation-speed: 1;
+            --motion-blur: 0px;
         }
 
         .light-mode {
@@ -112,7 +114,6 @@
             transition: background 0.3s;
         }
 
-        /* Boot Screen */
         .boot-screen {
             position: fixed;
             top: 0;
@@ -250,6 +251,7 @@
             transition: transform 0.3s;
             transform: scale(var(--frame-scale));
             overflow: hidden;
+            display: none;
         }
 
         @media (max-width: 460px) {
@@ -296,14 +298,13 @@
             backdrop-filter: none !important;
         }
 
-        /* Home Screen */
         .home-screen {
             width: 100%;
             height: 100%;
             padding: 60px 20px 120px;
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
+            grid-template-columns: repeat(6, 1fr); /* 6 sütun */
+            gap: 15px; /* Daha küçük boşluk */
             align-content: start;
             position: relative;
             z-index: 1;
@@ -311,8 +312,8 @@
         }
 
         .app-icon {
-            width: 60px;
-            height: 80px;
+            width: 50px;
+            height: 60px;
             border-radius: 14px;
             display: flex;
             flex-direction: column;
@@ -368,7 +369,6 @@
                 box-shadow: 0 2px 5px rgba(0,0,0,0.2);
             }
 
-        /* App Window */
         .app-window {
             position: absolute;
             top: 0;
@@ -382,9 +382,26 @@
             transform-origin: center center;
             z-index: 20;
             overflow: hidden;
-            contain: strict;
             box-shadow: 0 0 20px rgba(0,0,0,0.2);
+            transition: transform 0.4s cubic-bezier(0.2, 0.9, 0.1, 1), border-radius 0.4s cubic-bezier(0.2, 0.9, 0.1, 1);
         }
+
+            .app-window.active {
+                transform: scale(0.95);
+                border-radius: 35px;
+            }
+
+            /* Yeni animasyon stilleri */
+            .app-window.origin-animation {
+                transform-origin: center center;
+            }
+
+            .app-window.spread-animation {
+                transform-origin: center center;
+            }
+
+
+
 
         .app-backdrop {
             position: absolute;
@@ -414,7 +431,6 @@
                 opacity: 1;
             }
 
-        /* Yeni: Uygulama ikon önizleme */
         .app-icon-preview-container {
             position: absolute;
             width: 100%;
@@ -497,7 +513,6 @@
                 display: none;
             }
 
-        /* Status Bar */
         .status-bar {
             position: absolute;
             top: 0;
@@ -551,17 +566,16 @@
             display: none;
         }
 
-        /* Home Indicator */
         .home-indicator {
             position: absolute;
             bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
-            width: 180px;
-            height: 44px;
+            width: 200px;
+            height: 30px;
             background: var(--home-indicator-bg);
             border-radius: 6px;
-            z-index: 1000;
+            z-index: 9999;
             pointer-events: auto;
             touch-action: manipulation;
             transition: all 0.3s;
@@ -585,10 +599,14 @@
                 transform: translate(-50%, -50%) scale(0.9);
             }
 
-        /* Settings App */
         .settings-content {
             background: var(--settings-bg);
             transition: background 0.3s;
+        }
+
+        .app-icon.disabled {
+            pointer-events: none;
+            opacity: 0.7;
         }
 
         .settings-item {
@@ -657,7 +675,6 @@
                 transform: translateX(26px);
             }
 
-        /* Slider for animation speed */
         .speed-slider-container {
             display: flex;
             align-items: center;
@@ -717,7 +734,6 @@
             text-align: center;
         }
 
-        /* Wallpaper Options */
         .wallpaper-options {
             display: none;
             grid-template-columns: repeat(2, 1fr);
@@ -743,7 +759,6 @@
                 transform: scale(0.95);
             }
 
-        /* Color Options */
         .color-options {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -768,7 +783,6 @@
                 transform: scale(0.9);
             }
 
-        /* RGB Color Picker */
         .rgb-picker {
             padding: 15px;
             background: var(--settings-bg);
@@ -800,7 +814,6 @@
             border: 1px solid var(--text-color);
         }
 
-        /* Animation Options */
         .animation-options {
             padding: 15px;
             background: var(--settings-bg);
@@ -830,7 +843,6 @@
             border: 1px solid var(--settings-bg);
         }
 
-        /* Calculator App */
         .app-content.calculator {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -853,6 +865,13 @@
             border: 1px solid var(--settings-bg);
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
             color: var(--text-color);
+        }
+
+        .app-opening-icon {
+            position: absolute;
+            z-index: 10;
+            font-size: 60px;
+            color: var(--icon-color);
         }
 
         .calculator-btn {
@@ -885,7 +904,6 @@
                 color: white;
             }
 
-        /* Notes App */
         .app-content.notes {
             padding: 0;
             background: var(--app-bg);
@@ -926,7 +944,6 @@
             color: var(--text-color);
         }
 
-        /* Gallery App */
         .gallery-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -958,7 +975,6 @@
                 object-fit: cover;
             }
 
-        /* Clock App */
         .app-content.clock {
             display: flex;
             flex-direction: column;
@@ -1020,7 +1036,6 @@
             font-weight: 500;
         }
 
-        /* Calendar App */
         .calendar-header {
             display: flex;
             justify-content: space-between;
@@ -1085,7 +1100,6 @@
                 opacity: 0.3;
             }
 
-        /* Weather App */
         .weather-current {
             padding: 20px;
             text-align: center;
@@ -1128,7 +1142,6 @@
             color: var(--theme-color);
         }
 
-        /* Device Info App */
         .device-info {
             padding: 15px;
             background: var(--app-bg);
@@ -1215,7 +1228,6 @@
             padding-bottom: 5px;
         }
 
-        /* Messages App */
         .messages-container {
             padding: 15px;
         }
@@ -1236,6 +1248,18 @@
             justify-content: center;
             margin-right: 10px;
             font-weight: bold;
+        }
+
+        .app-opening-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+            font-size: 60px;
+            color: var(--icon-color);
+            pointer-events: none;
+            transition: all 0.3s ease;
         }
 
         .message-content {
@@ -1296,7 +1320,6 @@
             justify-content: center;
         }
 
-        /* Fullscreen Button */
         .fullscreen-btn {
             position: absolute;
             top: 20px;
@@ -1320,7 +1343,6 @@
                 background: rgba(0, 0, 0, 0.7);
             }
 
-        /* Reset Button */
         .reset-button {
             position: absolute;
             right: 20px;
@@ -1338,12 +1360,10 @@
                 background: #d32f2f;
             }
 
-        /* New Animation Styles */
         .animation-select {
             width: 150px;
         }
 
-        /* TTR App Styles */
         .ttr-container {
             padding: 15px;
         }
@@ -1382,7 +1402,6 @@
             text-decoration: none;
         }
 
-        /* Toast mesajı için stil */
         .toast-message {
             position: fixed;
             bottom: 30px;
@@ -1397,177 +1416,6 @@
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
 
-        /* App Dock */
-        .app-dock {
-            position: absolute;
-            bottom: 100px;
-            left: 0;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            padding: 10px 0;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px 20px 0 0;
-            z-index: 10;
-        }
-
-        .dock-icon {
-            width: 50px;
-            height: 50px;
-            margin: 0 5px;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255,255,255,0.2);
-            transition: transform 0.2s;
-        }
-
-            .dock-icon:active {
-                transform: scale(0.9);
-            }
-
-            .dock-icon i {
-                font-size: 24px;
-                color: var(--icon-color);
-            }
-
-        /* Control Center */
-        .control-center {
-            position: absolute;
-            top: 30px;
-            right: -300px;
-            width: 280px;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 15px;
-            z-index: 50;
-            transition: transform 0.3s ease-out;
-        }
-
-            .control-center.active {
-                transform: translateX(-320px);
-            }
-
-        .control-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .control-title {
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .control-close {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255,255,255,0.2);
-        }
-
-        .control-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-        }
-
-        .control-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 10px;
-            border-radius: 10px;
-            background: rgba(255,255,255,0.1);
-            transition: background 0.2s;
-        }
-
-            .control-item:active {
-                background: rgba(255,255,255,0.2);
-            }
-
-            .control-item i {
-                font-size: 24px;
-                margin-bottom: 5px;
-            }
-
-            .control-item span {
-                font-size: 12px;
-            }
-
-        /* Notification Center */
-        .notification-center {
-            position: absolute;
-            top: 30px;
-            left: -300px;
-            width: 280px;
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(20px);
-            border-radius: 20px;
-            padding: 15px;
-            z-index: 50;
-            transition: transform 0.3s ease-out;
-        }
-
-            .notification-center.active {
-                transform: translateX(320px);
-            }
-
-        .notification-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        .notification-title {
-            font-weight: 600;
-            font-size: 16px;
-        }
-
-        .notification-close {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(255,255,255,0.2);
-        }
-
-        .notification-item {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-
-        .notification-app {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
-
-        .notification-text {
-            font-size: 13px;
-            opacity: 0.9;
-        }
-
-        .notification-time {
-            font-size: 11px;
-            opacity: 0.7;
-            margin-top: 5px;
-            text-align: right;
-        }
-
-        /* Phone App */
         .phone-app {
             padding: 20px;
         }
@@ -1611,7 +1459,6 @@
             margin-top: 10px;
         }
 
-        /* Contacts App */
         .contacts-list {
             padding: 15px;
         }
@@ -1646,7 +1493,6 @@
             margin-top: 3px;
         }
 
-        /* Music App */
         .music-player {
             padding: 20px;
             text-align: center;
@@ -1723,7 +1569,6 @@
             color: white;
         }
 
-        /* Files App */
         .files-container {
             padding: 15px;
         }
@@ -1758,7 +1603,6 @@
             opacity: 0.7;
         }
 
-        /* Maps App */
         .maps-container {
             padding: 0;
             height: 100%;
@@ -1780,7 +1624,6 @@
             margin-bottom: 20px;
         }
 
-        /* Auto App Opener */
         .auto-opener-container {
             position: absolute;
             top: 20px;
@@ -1817,7 +1660,19 @@
             gap: 5px;
         }
 
-        /* Responsive Adjustments */
+        .motion-blur {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            opacity: 0.5;
+            filter: blur(var(--motion-blur));
+            z-index: -1;
+            pointer-events: none;
+        }
+
         @media (max-width: 400px) {
             .phone {
                 width: 100vw;
@@ -1845,16 +1700,10 @@
                 grid-template-columns: repeat(4, 1fr);
                 gap: 15px;
             }
-
-            .app-icon {
-                width: 70px;
-                height: 90px;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Boot Screen -->
     <div class="boot-screen" id="bootScreen">
         <div class="boot-logo">K</div>
         <h2 style="font-size: 28px; margin-bottom: 10px; text-shadow: 0 0 10px rgba(255,255,255,0.3);">KedyOS 22</h2>
@@ -1865,14 +1714,14 @@
         <div class="boot-version">v22.0.1</div>
     </div>
 
-    <!-- Phone Simulator -->
     <div class="phone" id="phone">
         <div class="phone-inner">
             <div class="screen">
                 <div class="wallpaper" id="wallpaper"></div>
+                <div class="motion-blur" id="motionBlur"></div>
 
                 <div class="status-bar">
-                    <font size="1.8px"><i class="fa-brands fa-telegram"></i>Telegram: UrindDev</font>
+                    <font size="1"><i class="fa-brands fa-telegram"></i>Telegram: UrindDev</font>
                     <div class="battery-info">
                         <span id="current-time">12:34</span>
                         <div class="battery-icon">
@@ -1883,76 +1732,9 @@
                     </div>
                 </div>
 
-                <!-- Control Center -->
-                <div class="control-center" id="controlCenter">
-                    <div class="control-header">
-                        <div class="control-title">Kontrol Merkezi</div>
-                        <div class="control-close" id="closeControlCenter">
-                            <i class="fas fa-times"></i>
-                        </div>
-                    </div>
-                    <div class="control-grid">
-                        <div class="control-item" id="wifiControl">
-                            <i class="fas fa-wifi"></i>
-                            <span>Wi-Fi</span>
-                        </div>
-                        <div class="control-item" id="bluetoothControl">
-                            <i class="fas fa-bluetooth-b"></i>
-                            <span>Bluetooth</span>
-                        </div>
-                        <div class="control-item" id="darkModeControl">
-                            <i class="fas fa-moon"></i>
-                            <span>Koyu Mod</span>
-                        </div>
-                        <div class="control-item" id="notificationsControl">
-                            <i class="fas fa-bell"></i>
-                            <span>Bildirimler</span>
-                        </div>
-                        <div class="control-item">
-                            <i class="fas fa-volume-up"></i>
-                            <span>Ses</span>
-                        </div>
-                        <div class="control-item">
-                            <i class="fas fa-sun"></i>
-                            <span>Parlaklık</span>
-                        </div>
-                        <div class="control-item">
-                            <i class="fas fa-lock"></i>
-                            <span>Kilit</span>
-                        </div>
-                        <div class="control-item">
-                            <i class="fas fa-power-off"></i>
-                            <span>Kapat</span>
-                        </div>
-                    </div>
-                </div>
 
-                <!-- Notification Center -->
-                <div class="notification-center" id="notificationCenter">
-                    <div class="notification-header">
-                        <div class="notification-title">Bildirimler</div>
-                        <div class="notification-close" id="closeNotificationCenter">
-                            <i class="fas fa-times"></i>
-                        </div>
-                    </div>
-                    <div class="notification-item" id="telegramNotification">
-                        <div class="notification-app">Telegram</div>
-                        <div class="notification-text">Yeni mesajınız var: Merhaba, nasılsın?</div>
-                        <div class="notification-time">2 dakika önce</div>
-                    </div>
-                    <div class="notification-item">
-                        <div class="notification-app">E-posta</div>
-                        <div class="notification-text">Yeni e-posta: Fatura bilgileriniz</div>
-                        <div class="notification-time">1 saat önce</div>
-                    </div>
-                    <div class="notification-item">
-                        <div class="notification-app">Takvim</div>
-                        <div class="notification-text">Yaklaşan etkinlik: Toplantı 15:00'te</div>
-                        <div class="notification-time">Dün</div>
-                    </div>
-                </div>
 
-                <div class="home-screen" id="homeScreen">
+                <div class="home-screen" id="homeScreen" style="grid-template-columns: repeat(6, 1fr);">
                     <div class="app-icon" data-app="settings">
                         <i class="fas fa-cog"></i>
                         <span>Ayarlar</span>
@@ -2025,23 +1807,16 @@
                         <i class="fas fa-code"></i>
                         <span>TTR</span>
                     </div>
+                    <div class="app-icon" data-app="health">
+                        <i class="fas fa-heartbeat"></i>
+                        <span>Sağlık</span>
+                    </div>
+                    <div class="app-icon" data-app="wallet">
+                        <i class="fas fa-wallet"></i>
+                        <span>Cüzdan</span>
+                    </div>
                 </div>
 
-                <!-- App Dock -->
-                <div class="app-dock">
-                    <div class="dock-icon" id="openControlCenter">
-                        <i class="fas fa-sliders-h"></i>
-                    </div>
-                    <div class="dock-icon" id="openNotificationCenter">
-                        <i class="fas fa-bell"></i>
-                    </div>
-                    <div class="dock-icon" id="openPhoneApp">
-                        <i class="fas fa-phone"></i>
-                    </div>
-                    <div class="dock-icon" id="openContactsApp">
-                        <i class="fas fa-user"></i>
-                    </div>
-                </div>
 
                 <!-- Music App -->
                 <div class="app-window" id="musicApp">
@@ -2435,6 +2210,74 @@
                     </div>
                 </div>
 
+                <!-- Health App -->
+                <div class="app-window" id="healthApp">
+                    <div class="app-backdrop"></div>
+                    <div class="app-header">
+                        <span>Sağlık</span>
+                    </div>
+                    <div class="app-content">
+                        <div class="app-content-inner" style="padding: 20px;">
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <i class="fas fa-heartbeat" style="font-size: 60px; color: var(--theme-color);"></i>
+                                <h3>Sağlık Bilgileriniz</h3>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                                <div style="background: var(--settings-bg); border-radius: 12px; padding: 15px; text-align: center;">
+                                    <div style="font-size: 24px; font-weight: bold; color: var(--theme-color);">7,245</div>
+                                    <div style="font-size: 14px; opacity: 0.8;">Adım</div>
+                                </div>
+                                <div style="background: var(--settings-bg); border-radius: 12px; padding: 15px; text-align: center;">
+                                    <div style="font-size: 24px; font-weight: bold; color: var(--theme-color);">72</div>
+                                    <div style="font-size: 14px; opacity: 0.8;">Kalp Atışı</div>
+                                </div>
+                                <div style="background: var(--settings-bg); border-radius: 12px; padding: 15px; text-align: center;">
+                                    <div style="font-size: 24px; font-weight: bold; color: var(--theme-color);">6.5</div>
+                                    <div style="font-size: 14px; opacity: 0.8;">Uyku (saat)</div>
+                                </div>
+                                <div style="background: var(--settings-bg); border-radius: 12px; padding: 15px; text-align: center;">
+                                    <div style="font-size: 24px; font-weight: bold; color: var(--theme-color);">1,850</div>
+                                    <div style="font-size: 14px; opacity: 0.8;">Kalori</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Wallet App -->
+                <div class="app-window" id="walletApp">
+                    <div class="app-backdrop"></div>
+                    <div class="app-header">
+                        <span>Cüzdan</span>
+                    </div>
+                    <div class="app-content">
+                        <div class="app-content-inner" style="padding: 20px;">
+                            <div style="text-align: center; margin-bottom: 30px;">
+                                <i class="fas fa-wallet" style="font-size: 60px; color: var(--theme-color);"></i>
+                                <h3>KedyPay</h3>
+                            </div>
+                            <div style="background: var(--settings-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                                <div style="font-size: 14px; opacity: 0.8; margin-bottom: 5px;">Bakiye</div>
+                                <div style="font-size: 28px; font-weight: bold;">₺1,245.50</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                                <div style="background: var(--settings-bg); border-radius: 10px; padding: 15px; text-align: center;">
+                                    <i class="fas fa-money-bill-wave" style="color: var(--theme-color); margin-bottom: 5px;"></i>
+                                    <div style="font-size: 12px;">Para Gönder</div>
+                                </div>
+                                <div style="background: var(--settings-bg); border-radius: 10px; padding: 15px; text-align: center;">
+                                    <i class="fas fa-qrcode" style="color: var(--theme-color); margin-bottom: 5px;"></i>
+                                    <div style="font-size: 12px;">QR Öde</div>
+                                </div>
+                                <div style="background: var(--settings-bg); border-radius: 10px; padding: 15px; text-align: center;">
+                                    <i class="fas fa-history" style="color: var(--theme-color); margin-bottom: 5px;"></i>
+                                    <div style="font-size: 12px;">Geçmiş</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Settings App -->
                 <div class="app-window" id="settingsApp">
                     <div class="app-backdrop"></div>
@@ -2450,16 +2293,18 @@
                                     <span class="slider"></span>
                                 </label>
                             </div>
+
                             <div class="settings-item" id="wallpaperSettings">
                                 <div class="settings-title">Duvar Kağıdı</div>
                                 <div class="settings-value">Değiştir</div>
                             </div>
                             <div class="wallpaper-options" id="wallpaperOptions">
-                                <div class="wallpaper-option" style="background-image: url('https://source.unsplash.com/random/360x740/?abstract,gradient');"></div>
+                                <div class="wallpaper-option" style="background-image: url('https://wallpapershome.com/images/pages/pic_v/25956.jpg');"></div>
                                 <div class="wallpaper-option" style="background-image: url('https://source.unsplash.com/random/360x740/?nature');"></div>
                                 <div class="wallpaper-option" style="background-image: url('https://source.unsplash.com/random/360x740/?city');"></div>
                                 <div class="wallpaper-option" style="background-image: url('https://source.unsplash.com/random/360x740/?space');"></div>
                             </div>
+
                             <div class="settings-item" id="themeSettings">
                                 <div class="settings-title">Tema Rengi</div>
                                 <div class="settings-value">Turuncu</div>
@@ -2476,6 +2321,7 @@
                                 <div class="color-option yellow-theme" style="background: #FFEB3B;"></div>
                                 <div class="color-option amber-theme" style="background: #FFC107;"></div>
                             </div>
+
                             <div class="settings-item" id="rgbColorSettings">
                                 <div class="settings-title">Özel Renk</div>
                                 <div class="settings-value">RGB Ayarla</div>
@@ -2504,33 +2350,31 @@
                                     <input type="range" min="0" max="255" value="37" class="rgb-slider" id="blueSlider">
                                 </div>
                             </div>
-                            <div class="settings-item">
-                                <div class="settings-title">Animasyon Hızı</div>
-                                <div class="settings-value">Orta</div>
-                            </div>
-                            <div class="animation-options">
-                                <div class="speed-slider-container">
+
+                            <div class="speed-slider-container">
+                                <div class="slider-label">
+                                    <span>Animasyon Hızı</span>
+                                    <span id="speedValue">Orta</span>
+                                </div>
+                                <div class="slider-container">
                                     <span>Yavaş</span>
-                                    <div class="speed-slider">
-                                        <div class="speed-slider-fill"></div>
-                                        <div class="speed-slider-handle"></div>
-                                    </div>
+                                    <input type="range" min="0.3" max="1.5" step="0.1" value="0.8" class="slider" id="speedSlider">
                                     <span>Hızlı</span>
                                 </div>
-                                <div class="speed-value">Orta</div>
-                                <div class="settings-item">
-                                    <div class="settings-title">Animasyon Stili</div>
-                                    <div class="settings-value">Varsayılan</div>
-                                </div>
-                                <div class="animation-option">
-                                    <div class="animation-label">Açılış Animasyonu</div>
-                                    <select class="animation-select" id="animationSelect">
-                                        <option>Varsayılan</option>
-                                        <option>OriginOS</option>
-                                        <option>Yayılma</option>
-                                        <option>Hafif</option>
-                                    </select>
-                                </div>
+                            </div>
+
+                            <div class="settings-item">
+                                <div class="settings-title">Animasyon Stili</div>
+                                <div class="settings-value">Varsayılan</div>
+                            </div>
+                            <div class="animation-option">
+                                <div class="animation-label">Açılış Animasyonu</div>
+                                <select class="animation-select" id="animationSelect">
+                                    <option>Varsayılan</option>
+                                    <option>OriginOS</option>
+                                    <option>Yayılma</option>
+                                    <option>Hafif</option>
+                                </select>
                             </div>
                         </div>
                     </div>
@@ -2753,49 +2597,51 @@
                     </div>
                 </div>
 
-                <!-- Home Indicator -->
                 <div class="home-indicator" id="homeIndicator"></div>
             </div>
         </div>
     </div>
-
     <script>
-        // Boot Screen Animation
+        // Global değişkenler
+        let currentApp = null;
+        let isInTransition = false;
+        let nextAppToOpen = null;
+        let allowAppClick = true;
+        let animationSpeed = 0.8;
+        let activeIcon = null;
+        let appOpeningState = {};
+        let phoneInitialized = false;
+
+        // Sayfa yüklendiğinde boot animasyonunu başlat
         document.addEventListener('DOMContentLoaded', function () {
             const bootScreen = document.getElementById('bootScreen');
             const bootProgress = document.getElementById('bootProgress');
             const bootText = document.getElementById('bootText');
             const phone = document.getElementById('phone');
 
-            // Boot progress animation
+            // Boot animasyonu
             let progress = 0;
             const bootInterval = setInterval(function () {
                 progress += Math.random() * 10;
                 if (progress >= 100) {
                     progress = 100;
                     clearInterval(bootInterval);
-
-                    // Update boot text
                     bootText.textContent = "Başlatma tamamlandı";
 
-                    // Hide boot screen and show phone
-                    setTimeout(function () {
-                        gsap.to(bootScreen, {
-                            opacity: 0,
-                            duration: 0.5,
-                            onComplete: function () {
-                                bootScreen.style.display = 'none';
-                                phone.style.display = 'block';
-
-                                // Start phone animations
-                                initPhone();
-                            }
-                        });
-                    }, 500);
+                    // Boot ekranını kapat ve telefonu başlat
+                    gsap.to(bootScreen, {
+                        opacity: 0,
+                        duration: 0.5,
+                        onComplete: function () {
+                            bootScreen.style.display = 'none';
+                            phone.style.display = 'block';
+                            initPhone();
+                        }
+                    });
                 }
                 bootProgress.style.width = progress + '%';
 
-                // Update boot text at certain progress points
+                // Boot mesajlarını güncelle
                 if (progress < 30) {
                     bootText.textContent = "Sistem başlatılıyor...";
                 } else if (progress < 60) {
@@ -2806,44 +2652,31 @@
             }, 200);
         });
 
-        // Phone initialization
+        // Telefonu başlatma fonksiyonu
         function initPhone() {
-            // Update time and battery
+            if (phoneInitialized) return;
+            phoneInitialized = true;
+
             updateTime();
             updateBattery();
-
-            // Set intervals for time and battery updates
             setInterval(updateTime, 60000);
             setInterval(updateBattery, 30000);
-
-            // Initialize app functionality
             initApps();
-
-            // Initialize control center and notification center
             initControlCenter();
             initNotificationCenter();
-
-            // Initialize settings
             initSettings();
-
-            // Initialize clock
             initClock();
-
-            // Initialize calculator
             initCalculator();
-
-            // Initialize notes
             initNotes();
         }
 
-        // Update time function
+        // Saati güncelleme fonksiyonu
         function updateTime() {
             const now = new Date();
             const hours = now.getHours().toString().padStart(2, '0');
             const minutes = now.getMinutes().toString().padStart(2, '0');
             document.getElementById('current-time').textContent = `${hours}:${minutes}`;
 
-            // Update digital clock if app is open
             const digitalClock = document.getElementById('digitalClock');
             if (digitalClock) {
                 const seconds = now.getSeconds().toString().padStart(2, '0');
@@ -2851,234 +2684,261 @@
             }
         }
 
-        // Update battery function
+        // Pil durumunu güncelleme fonksiyonu
         function updateBattery() {
-            // Simulate battery level between 20% and 100%
             const batteryLevel = document.getElementById('batteryLevel');
             const chargingIcon = document.getElementById('chargingIcon');
-
-            // Random battery level between 20% and 100%
             const level = Math.floor(Math.random() * 80) + 20;
+
             batteryLevel.style.width = level + '%';
+            batteryLevel.style.background = level < 20 ? '#ff4757' :
+                level < 50 ? '#ffa502' : 'white';
 
-            // Random charging status (20% chance)
-            const isCharging = Math.random() < 0.2;
-            chargingIcon.style.display = isCharging ? 'block' : 'none';
-
-            // Change battery color based on level
-            if (level < 20) {
-                batteryLevel.style.background = '#ff4757';
-            } else if (level < 50) {
-                batteryLevel.style.background = '#ffa502';
-            } else {
-                batteryLevel.style.background = 'white';
-            }
+            chargingIcon.style.display = Math.random() < 0.2 ? 'block' : 'none';
         }
 
-        // Initialize apps
+        // Uygulamaları başlatma fonksiyonu
         function initApps() {
             const appIcons = document.querySelectorAll('.app-icon');
-            const homeScreen = document.getElementById('homeScreen');
             const homeIndicator = document.getElementById('homeIndicator');
+            let homeIndicatorCooldown = false;
+
+            // Uygulama ızgarasını 6 sütun yap
+            document.querySelector('.home-screen').style.gridTemplateColumns = 'repeat(6, 1fr)';
 
             appIcons.forEach(icon => {
                 icon.addEventListener('click', function () {
+                    if (!allowAppClick || this.classList.contains('disabled')) return;
                     const appName = this.getAttribute('data-app');
                     openApp(appName, this);
                 });
             });
 
-            // Home indicator functionality
+            // Home indicator için cooldown mekanizması
             homeIndicator.addEventListener('click', function () {
+                if (homeIndicatorCooldown) return;
+                homeIndicatorCooldown = true;
                 closeAllApps();
+                setTimeout(() => { homeIndicatorCooldown = false; }, 500);
             });
 
-            // Dock icons functionality
-            document.getElementById('openControlCenter').addEventListener('click', function () {
+            // Dock ikonları için event listener'lar
+            document.getElementById('openControlCenter').addEventListener('click', () => {
                 document.getElementById('controlCenter').classList.add('active');
             });
 
-            document.getElementById('openNotificationCenter').addEventListener('click', function () {
+            document.getElementById('openNotificationCenter').addEventListener('click', () => {
                 document.getElementById('notificationCenter').classList.add('active');
             });
 
+            // Dock'taki telefon uygulaması için özel işlem
             document.getElementById('openPhoneApp').addEventListener('click', function () {
-                openApp('phone');
+                if (currentApp === 'phone') return;
+                if (currentApp) {
+                    closeApp(() => openApp('phone'));
+                } else {
+                    openApp('phone');
+                }
             });
 
-            document.getElementById('openContactsApp').addEventListener('click', function () {
-                openApp('contacts');
-            });
+            document.getElementById('openContactsApp').addEventListener('click', () => openApp('contacts'));
         }
 
-        // Open app with OriginOS style animation
-        function openApp(appName, iconElement = null) {
-            const appWindow = document.getElementById(appName + 'App');
-            const appBackdrop = appWindow.querySelector('.app-backdrop');
-            const appContentInner = appWindow.querySelector('.app-content-inner');
-            const homeScreen = document.getElementById('homeScreen');
+        // Uygulama açma fonksiyonu
+        function openApp(appName, icon) {
+            if (currentApp === appName) return;
 
-            // Create icon preview element
-            const iconPreview = document.createElement('div');
-            iconPreview.className = 'app-icon-preview';
-
-            if (iconElement) {
-                const icon = iconElement.querySelector('i').cloneNode(true);
-                const text = iconElement.querySelector('span').cloneNode(true);
-
-                iconPreview.appendChild(icon);
-                iconPreview.appendChild(text);
-
-                // Get icon position
-                const iconRect = iconElement.getBoundingClientRect();
-                const homeRect = homeScreen.getBoundingClientRect();
-
-                // Position the preview at the icon location
-                iconPreview.style.position = 'absolute';
-                iconPreview.style.left = (iconRect.left - homeRect.left) + 'px';
-                iconPreview.style.top = (iconRect.top - homeRect.top) + 'px';
-                iconPreview.style.width = iconRect.width + 'px';
-                iconPreview.style.height = (iconRect.height - 20) + 'px'; // Adjust for text
-
-                homeScreen.appendChild(iconPreview);
-
-                // Animate icon to center
-                const centerX = window.innerWidth / 2 - 50;
-                const centerY = window.innerHeight / 2 - 50;
-
-                gsap.to(iconPreview, {
-                    left: centerX,
-                    top: centerY,
-                    width: '100px',
-                    height: '100px',
-                    duration: 0.4,
-                    ease: 'power2.out',
-                    onComplete: function () {
-                        // Show app window
-                        appWindow.style.display = 'flex';
-                        appBackdrop.classList.add('visible');
-
-                        // Animate icon preview to app icon
-                        const appIcon = appWindow.querySelector('.app-header i');
-                        if (appIcon) {
-                            const appIconRect = appIcon.getBoundingClientRect();
-
-                            gsap.to(iconPreview, {
-                                left: (appIconRect.left - homeRect.left),
-                                top: (appIconRect.top - homeRect.top),
-                                width: '30px',
-                                height: '30px',
-                                duration: 0.3,
-                                delay: 0.1,
-                                onComplete: function () {
-                                    // Remove icon preview
-                                    iconPreview.remove();
-
-                                    // Show app content
-                                    setTimeout(function () {
-                                        appContentInner.classList.add('visible');
-                                    }, 100);
-                                }
-                            });
-                        } else {
-                            // If no app icon, just fade out
-                            gsap.to(iconPreview, {
-                                opacity: 0,
-                                scale: 1.5,
-                                duration: 0.3,
-                                onComplete: function () {
-                                    iconPreview.remove();
-                                    appContentInner.classList.add('visible');
-                                }
-                            });
-                        }
-                    }
-                });
-            } else {
-                // If no icon element provided (dock icons), use default animation
-                appWindow.style.display = 'flex';
-                appBackdrop.classList.add('visible');
-
-                // Create a temporary icon in the center
-                iconPreview.style.position = 'fixed';
-                iconPreview.style.left = '50%';
-                iconPreview.style.top = '50%';
-                iconPreview.style.transform = 'translate(-50%, -50%)';
-                iconPreview.style.width = '100px';
-                iconPreview.style.height = '100px';
-
-                // Add appropriate icon based on app
-                const icon = document.createElement('i');
-                switch (appName) {
-                    case 'phone':
-                        icon.className = 'fas fa-phone';
-                        break;
-                    case 'contacts':
-                        icon.className = 'fas fa-user';
-                        break;
-                    default:
-                        icon.className = 'fas fa-mobile-alt';
-                }
-
-                const text = document.createElement('span');
-                text.textContent = appName.charAt(0).toUpperCase() + appName.slice(1);
-
-                iconPreview.appendChild(icon);
-                iconPreview.appendChild(text);
-                document.body.appendChild(iconPreview);
-
-                // Animate icon to app header
-                setTimeout(function () {
-                    appWindow.style.display = 'flex';
-                    appBackdrop.classList.add('visible');
-
-                    const appHeader = appWindow.querySelector('.app-header');
-                    if (appHeader) {
-                        gsap.to(iconPreview, {
-                            x: -iconPreview.offsetWidth / 2 + 20,
-                            y: -iconPreview.offsetHeight / 2 - 30,
-                            scale: 0.5,
-                            duration: 0.3,
-                            onComplete: function () {
-                                iconPreview.remove();
-                                appContentInner.classList.add('visible');
-                            }
-                        });
-                    } else {
-                        iconPreview.remove();
-                        appContentInner.classList.add('visible');
-                    }
-                }, 100);
+            if (icon) {
+                activeIcon = icon;
+                icon.classList.add('disabled');
             }
 
-            // Hide home screen
-            homeScreen.style.filter = 'blur(5px)';
+            if (currentApp) {
+                closeApp(() => openAppAfterClose(appName, icon));
+            } else {
+                openAppAfterClose(appName, icon);
+            }
         }
 
-        // Close all apps
-        function closeAllApps() {
-            const appWindows = document.querySelectorAll('.app-window');
-            const homeScreen = document.getElementById('homeScreen');
+        function openAppAfterClose(appName, icon) {
+            isInTransition = true;
+            allowAppClick = false;
+            currentApp = appName;
+            appOpeningState[appName] = true;
 
-            appWindows.forEach(app => {
-                if (app.style.display === 'flex') {
-                    const appBackdrop = app.querySelector('.app-backdrop');
-                    const appContentInner = app.querySelector('.app-content-inner');
+            const appWindow = document.getElementById(`${appName}App`);
+            const appContent = appWindow.querySelector('.app-content-inner');
+            const screen = document.querySelector('.screen');
 
-                    appContentInner.classList.remove('visible');
-                    appBackdrop.classList.remove('visible');
+            // App icon elementini oluştur ve pozisyonlandır
+            const appIcon = document.createElement('div');
+            appIcon.className = 'app-opening-icon';
+            appIcon.innerHTML = `<i class="${icon.querySelector('i').className}"></i>`;
+            appWindow.appendChild(appIcon);
 
-                    setTimeout(function () {
-                        app.style.display = 'none';
-                    }, 300);
+            // İçerik başlangıçta gizli
+            appContent.style.display = 'none';
+            appContent.style.opacity = '0';
+
+            // Pozisyon hesaplama
+            const iconRect = icon.getBoundingClientRect();
+            const screenRect = screen.getBoundingClientRect();
+
+            const startX = iconRect.left - screenRect.left;
+            const startY = iconRect.top - screenRect.top;
+            const startWidth = iconRect.width;
+            const startHeight = iconRect.height;
+
+            // Başlangıç ayarları
+            gsap.set(appWindow, {
+                display: 'flex',
+                x: startX,
+                y: startY,
+                width: startWidth,
+                height: startHeight,
+                borderRadius: '14px',
+                transformOrigin: 'center center'
+            });
+
+            // Icon animasyon ayarları
+            gsap.set(appIcon, {
+                opacity: 0,
+                scale: 0.8,
+                x: '50%',
+                y: '50%',
+                transformOrigin: 'center center'
+            });
+
+            // Animasyon timeline
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    appWindow.style.transform = 'none';
+                    appWindow.style.borderRadius = '25px';
+                    isInTransition = false;
+                    appOpeningState[appName] = false;
+
+                    // İçerik gösterimi
+                    appContent.style.display = 'block';
+                    gsap.to(appContent, {
+                        opacity: 1,
+                        duration: 0.3
+                    });
+
+                    // Icon'u temizle
+                    appIcon.remove();
+
+                    if (icon) {
+                        icon.classList.remove('disabled');
+                        activeIcon = null;
+                    }
                 }
             });
 
-            // Restore home screen
-            homeScreen.style.filter = 'none';
+            // İlk %30'da icon gösterilecek
+            tl.to(appIcon, {
+                opacity: 1,
+                scale: 1,
+                duration: animationSpeed * 0.3
+            })
+                .to(appIcon, {
+                    opacity: 0,
+                    scale: 1.5,
+                    duration: animationSpeed * 0.7
+                }, `>+=${animationSpeed * 0.2}`);
+
+            // Pencere animasyonu
+            tl.to(appWindow, {
+                x: 0,
+                y: 0,
+                width: '100%',
+                height: '100%',
+                borderRadius: '25px',
+                duration: animationSpeed,
+                ease: "power2.out"
+            }, 0);
         }
 
-        // Initialize control center
+        // Uygulama kapatma fonksiyonu
+        function closeApp(callback) {
+            if (!currentApp || isInTransition) {
+                if (callback) callback();
+                return;
+            }
+
+            isInTransition = true;
+            const appWindow = document.getElementById(`${currentApp}App`);
+            const appContent = appWindow.querySelector('.app-content-inner');
+            const icon = document.querySelector(`.app-icon[data-app="${currentApp}"]`);
+            const screen = document.querySelector('.screen');
+
+            // Kapanış pozisyonu
+            let endX, endY, endWidth, endHeight;
+
+            if (icon) {
+                const iconRect = icon.getBoundingClientRect();
+                const screenRect = screen.getBoundingClientRect();
+
+                endX = iconRect.left - screenRect.left;
+                endY = iconRect.top - screenRect.top;
+                endWidth = iconRect.width;
+                endHeight = iconRect.height;
+            } else {
+                endX = screen.offsetWidth / 2 - 30;
+                endY = screen.offsetHeight - 100;
+                endWidth = 60;
+                endHeight = 80;
+            }
+
+            // Animasyon
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    appWindow.style.display = 'none';
+                    const prevApp = currentApp;
+                    currentApp = null;
+                    isInTransition = false;
+                    appContent.style.display = 'none';
+                    appContent.style.opacity = '0';
+
+                    if (icon) {
+                        icon.classList.remove('disabled');
+                        activeIcon = null;
+                    }
+
+                    if (callback) callback();
+
+                    // Sıradaki uygulama
+                    if (nextAppToOpen && prevApp !== nextAppToOpen) {
+                        const nextIcon = document.querySelector(`.app-icon[data-app="${nextAppToOpen}"]`);
+                        openApp(nextAppToOpen, nextIcon);
+                        nextAppToOpen = null;
+                    }
+                }
+            });
+
+            tl.to(appWindow, {
+                x: endX,
+                y: endY,
+                width: endWidth,
+                height: endHeight,
+                borderRadius: '14px',
+                duration: animationSpeed,
+                ease: "power2.in"
+            });
+        }
+
+        // Tüm uygulamaları kapatma fonksiyonu
+        function closeAllApps() {
+            if (currentApp) {
+                if (appOpeningState[currentApp]) {
+                    gsap.killTweensOf(document.getElementById(`${currentApp}App`));
+                    currentApp = null;
+                    return;
+                }
+                closeApp();
+            }
+        }
+
+        // Kontrol merkezi fonksiyonları
         function initControlCenter() {
             const controlCenter = document.getElementById('controlCenter');
             const closeControlCenter = document.getElementById('closeControlCenter');
@@ -3087,7 +2947,7 @@
                 controlCenter.classList.remove('active');
             });
 
-            // Toggle functionality for control items
+            // Kontrol öğeleri
             document.getElementById('wifiControl').addEventListener('click', function () {
                 this.classList.toggle('active');
             });
@@ -3106,7 +2966,7 @@
             });
         }
 
-        // Initialize notification center
+        // Bildirim merkezi fonksiyonları
         function initNotificationCenter() {
             const notificationCenter = document.getElementById('notificationCenter');
             const closeNotificationCenter = document.getElementById('closeNotificationCenter');
@@ -3115,16 +2975,15 @@
                 notificationCenter.classList.remove('active');
             });
 
-            // Notification click functionality
             document.getElementById('telegramNotification').addEventListener('click', function () {
                 openApp('messages');
                 notificationCenter.classList.remove('active');
             });
         }
 
-        // Initialize settings
+        // Ayarlar fonksiyonları
         function initSettings() {
-            // Wallpaper settings
+            // Duvar kağıdı ayarları
             const wallpaperSettings = document.getElementById('wallpaperSettings');
             const wallpaperOptions = document.getElementById('wallpaperOptions');
 
@@ -3132,25 +2991,16 @@
                 wallpaperOptions.style.display = wallpaperOptions.style.display === 'grid' ? 'none' : 'grid';
             });
 
-            // Wallpaper selection
             const wallpaperOptionsItems = wallpaperOptions.querySelectorAll('.wallpaper-option');
             wallpaperOptionsItems.forEach(option => {
                 option.addEventListener('click', function () {
-                    // Remove active class from all options
-                    wallpaperOptionsItems.forEach(item => {
-                        item.classList.remove('active');
-                    });
-
-                    // Add active class to selected option
+                    wallpaperOptionsItems.forEach(item => item.classList.remove('active'));
                     this.classList.add('active');
-
-                    // Change wallpaper
-                    const wallpaper = document.getElementById('wallpaper');
-                    wallpaper.style.backgroundImage = this.style.backgroundImage;
+                    document.getElementById('wallpaper').style.backgroundImage = this.style.backgroundImage;
                 });
             });
 
-            // Theme color settings
+            // Tema rengi ayarları
             const themeSettings = document.getElementById('themeSettings');
             const colorOptions = document.getElementById('colorOptions');
 
@@ -3158,150 +3008,45 @@
                 colorOptions.style.display = colorOptions.style.display === 'grid' ? 'none' : 'grid';
             });
 
-            // Color selection
             const colorOptionsItems = colorOptions.querySelectorAll('.color-option');
             colorOptionsItems.forEach(option => {
                 option.addEventListener('click', function () {
-                    // Remove active class from all options
-                    colorOptionsItems.forEach(item => {
-                        item.classList.remove('active');
-                    });
-
-                    // Add active class to selected option
+                    colorOptionsItems.forEach(item => item.classList.remove('active'));
                     this.classList.add('active');
-
-                    // Change theme
                     const themeClass = Array.from(this.classList).find(cls => cls.endsWith('-theme'));
                     if (themeClass) {
-                        // Remove all theme classes first
-                        document.body.classList.remove(
-                            'dark-orange-theme', 'blue-theme', 'green-theme', 'red-theme',
-                            'purple-theme', 'pink-theme', 'teal-theme', 'cyan-theme',
-                            'yellow-theme', 'amber-theme'
-                        );
-
-                        // Add selected theme class
+                        document.body.className = ''; // Tüm class'ları temizle
                         document.body.classList.add(themeClass);
                     }
                 });
             });
 
-            // RGB color picker
-            const rgbColorSettings = document.getElementById('rgbColorSettings');
-            const rgbPicker = document.getElementById('rgbPicker');
 
-            rgbColorSettings.addEventListener('click', function () {
-                rgbPicker.style.display = rgbPicker.style.display === 'block' ? 'none' : 'block';
+            // Animasyon hızı ayarı
+            const speedSlider = document.getElementById('speedSlider');
+            const speedValue = document.getElementById('speedValue');
+
+            speedSlider.addEventListener('input', function () {
+                const value = parseFloat(this.value);
+                let speedText = '';
+
+                if (value < 0.6) speedText = 'Yavaş';
+                else if (value < 1.0) speedText = 'Orta';
+                else speedText = 'Hızlı';
+
+                speedValue.textContent = speedText;
+                animationSpeed = value;
+                document.documentElement.style.setProperty('--animation-speed', value);
             });
 
-            // RGB sliders
-            const redSlider = document.getElementById('redSlider');
-            const greenSlider = document.getElementById('greenSlider');
-            const blueSlider = document.getElementById('blueSlider');
-            const redValue = document.getElementById('redValue');
-            const greenValue = document.getElementById('greenValue');
-            const blueValue = document.getElementById('blueValue');
-            const rgbPreview = rgbPicker.querySelector('.rgb-preview');
-
-            function updateRGBColor() {
-                const red = redSlider.value;
-                const green = greenSlider.value;
-                const blue = blueSlider.value;
-
-                redValue.textContent = red;
-                greenValue.textContent = green;
-                blueValue.textContent = blue;
-
-                const color = `rgb(${red}, ${green}, ${blue})`;
-                rgbPreview.style.background = color;
-
-                // Update theme color
-                document.documentElement.style.setProperty('--theme-color', color);
-                document.documentElement.style.setProperty('--icon-color', color);
-            }
-
-            redSlider.addEventListener('input', updateRGBColor);
-            greenSlider.addEventListener('input', updateRGBColor);
-            blueSlider.addEventListener('input', updateRGBColor);
-
-            // Dark mode toggle
+            // Koyu mod ayarı
             const darkModeToggle = document.getElementById('darkModeToggle');
             darkModeToggle.addEventListener('change', function () {
                 document.body.classList.toggle('light-mode');
             });
-
-            // Animation speed slider
-            const speedSliderHandle = document.querySelector('.speed-slider-handle');
-            const speedSliderFill = document.querySelector('.speed-slider-fill');
-            const speedValue = document.querySelector('.speed-value');
-            const speedSlider = document.querySelector('.speed-slider');
-
-            let isDragging = false;
-
-            speedSliderHandle.addEventListener('mousedown', function (e) {
-                isDragging = true;
-                document.addEventListener('mousemove', handleDrag);
-                document.addEventListener('mouseup', stopDrag);
-            });
-
-            speedSliderHandle.addEventListener('touchstart', function (e) {
-                isDragging = true;
-                document.addEventListener('touchmove', handleDrag);
-                document.addEventListener('touchend', stopDrag);
-            });
-
-            speedSlider.addEventListener('click', function (e) {
-                const rect = speedSlider.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const percentage = Math.min(Math.max(x / rect.width, 0), 1);
-
-                updateSpeedSlider(percentage);
-            });
-
-            function handleDrag(e) {
-                if (!isDragging) return;
-
-                const rect = speedSlider.getBoundingClientRect();
-                let x;
-
-                if (e.type === 'mousemove') {
-                    x = e.clientX - rect.left;
-                } else {
-                    x = e.touches[0].clientX - rect.left;
-                }
-
-                const percentage = Math.min(Math.max(x / rect.width, 0), 1);
-                updateSpeedSlider(percentage);
-            }
-
-            function stopDrag() {
-                isDragging = false;
-                document.removeEventListener('mousemove', handleDrag);
-                document.removeEventListener('touchmove', handleDrag);
-                document.removeEventListener('mouseup', stopDrag);
-                document.removeEventListener('touchend', stopDrag);
-            }
-
-            function updateSpeedSlider(percentage) {
-                speedSliderFill.style.width = (percentage * 100) + '%';
-                speedSliderHandle.style.left = (percentage * 100) + '%';
-
-                // Update speed value text
-                if (percentage < 0.33) {
-                    speedValue.textContent = 'Yavaş';
-                } else if (percentage < 0.66) {
-                    speedValue.textContent = 'Orta';
-                } else {
-                    speedValue.textContent = 'Hızlı';
-                }
-
-                // Update animation speed variable
-                const speed = 0.5 + percentage; // Range from 0.5 to 1.5
-                document.documentElement.style.setProperty('--animation-speed', speed);
-            }
         }
 
-        // Initialize clock
+        // Saat uygulaması fonksiyonları
         function initClock() {
             function updateClock() {
                 const now = new Date();
@@ -3309,7 +3054,7 @@
                 const minutes = now.getMinutes();
                 const seconds = now.getSeconds();
 
-                // Analog clock
+                // Analog saat
                 const hourHand = document.getElementById('clockHour');
                 const minuteHand = document.getElementById('clockMinute');
                 const secondHand = document.getElementById('clockSecond');
@@ -3324,7 +3069,7 @@
                     secondHand.style.transform = `rotate(${secondDeg}deg)`;
                 }
 
-                // Digital clock
+                // Dijital saat
                 const digitalClock = document.getElementById('digitalClock');
                 if (digitalClock) {
                     const hh = hours.toString().padStart(2, '0');
@@ -3338,11 +3083,10 @@
             setInterval(updateClock, 1000);
         }
 
-        // Initialize calculator
+        // Hesap makinesi fonksiyonları
         function initCalculator() {
             const calculatorDisplay = document.querySelector('.calculator-display');
             const calculatorButtons = document.querySelectorAll('.calculator-btn');
-
             let currentInput = '0';
             let previousInput = '';
             let operation = null;
@@ -3364,12 +3108,14 @@
                             currentInput += value;
                         }
                         updateDisplay();
-                    } else if (value === 'C') {
+                    }
+                    else if (value === 'C') {
                         currentInput = '0';
                         previousInput = '';
                         operation = null;
                         updateDisplay();
-                    } else if (value === '=') {
+                    }
+                    else if (value === '=') {
                         if (operation && previousInput) {
                             currentInput = calculate(previousInput, currentInput, operation);
                             operation = null;
@@ -3377,8 +3123,8 @@
                             resetInput = true;
                             updateDisplay();
                         }
-                    } else {
-                        // Operator buttons
+                    }
+                    else {
                         if (previousInput && currentInput && operation) {
                             currentInput = calculate(previousInput, currentInput, operation);
                             updateDisplay();
@@ -3404,7 +3150,7 @@
             }
         }
 
-        // Initialize notes
+        // Notlar uygulaması fonksiyonları
         function initNotes() {
             const newNoteBtn = document.getElementById('newNoteBtn');
             const saveNoteBtn = document.getElementById('saveNoteBtn');
@@ -3424,18 +3170,16 @@
             });
         }
 
-        // Show toast message
+        // Toast mesaj fonksiyonu
         function showToast(message) {
             const toast = document.createElement('div');
             toast.className = 'toast-message';
             toast.textContent = message;
             document.body.appendChild(toast);
 
-            setTimeout(function () {
+            setTimeout(() => {
                 toast.style.opacity = '0';
-                setTimeout(function () {
-                    toast.remove();
-                }, 300);
+                setTimeout(() => toast.remove(), 300);
             }, 3000);
         }
     </script>
